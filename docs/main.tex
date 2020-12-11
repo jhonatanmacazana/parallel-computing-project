@@ -12,11 +12,22 @@
 \def\BibTeX{{\rm B\kern-.05em{\sc i\kern-.025em b}\kern-.08em
     T\kern-.1667em\lower.7ex\hbox{E}\kern-.125emX}}
 
+% BUG in bibtex inside IEEEtran for bibliography
 \makeatletter
 \def\endthebibliography{%
   \def\@noitemerr{\@latex@warning{Empty `thebibliography' environment}}%
   \endlist
 }
+\makeatother
+
+% BUG in amsmath for equations
+\makeatletter
+\renewcommand{\dddot}[1]{%
+  {\mathop{\kern\z@#1}\limits^{\vbox to-1.4\ex@{\kern-\tw@\ex@
+   \hbox{\normalfont ...}\vss}}}}
+\renewcommand{\ddddot}[1]{%
+  {\mathop{\kern\z@#1}\limits^{\vbox to-1.4\ex@{\kern-\tw@\ex@
+   \hbox{\normalfont....}\vss}}}}
 \makeatother
 
 \begin{document}

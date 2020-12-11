@@ -1,3 +1,20 @@
 \section{Introducción}
 This document is a model and instructions for \LaTeX.
 Please observe the conference page limits. 
+
+La ecuación clásica de movimiento es:
+
+\begin{align*}
+	m \ddot x & = -D(x_i - x_{i+1}) - D(x_i - x_{i-1}) \\
+	          & = -D(2x_i - x_{i+1} - x_{i-1})         
+\end{align*}
+
+Donde $x_i$ representa la desviación de la partícula $i$ de su posición de reposo. Los extremos de la cadena están fijos a $x_0 = x_n = $ constante, con las relaciones $\sqrt{m} x_i(t) = v_i \exp(iwt)$
+
+El cálculo de las vibraciones del sistema se reduce al cálculo de los valores propios y vectores propios de la matriz tridiagonal
+
+\begin{equation*}
+	M_{ij} = \frac{D}{\sqrt{m_i m_j}} (2 \delta_{ij} - \delta_{i, j+1} - \delta_{i, j-1}) 
+\end{equation*}
+
+
