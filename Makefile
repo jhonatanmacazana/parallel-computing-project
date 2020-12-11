@@ -57,9 +57,9 @@ LDLIBS     += $(addprefix -L,$(foreach dir,$(LIBRARIES),$(wildcard $(dir)/librar
 #----------------------------------------------------------------------
 # Compiler & Linker
 #----------------------------------------------------------------------
-CC  := gcc-9
-CXX := g++-9
-AS  := gcc-9
+CC  := gcc
+CXX := g++
+AS  := gcc
 AR  := gcc-ar-9 # or /usr/local/opt/binutils/bin/ar
 NM  := gcc-nm-9 # or /usr/local/opt/binutils/bin/nm
 
@@ -90,8 +90,8 @@ CFLAGS    += -pedantic-errors
 CFLAGS    += -Wfatal-errors
 CFLAGS    += -Wpacked
 CFLAGS    += -Winline
-CFLAGS    += -Wfloat-equal
-CFLAGS    += -Wconversion
+# CFLAGS    += -Wfloat-equal
+# CFLAGS    += -Wconversion
 CFLAGS    += -Wpointer-arith
 CFLAGS    += -Wdisabled-optimization
 CFLAGS    += -Wunknown-pragmas
@@ -101,18 +101,19 @@ CFLAGS    += -Wno-unused-variable
 
 CXXFLAGS  += $(CFLAGS)
 CXXFLAGS  += -Weffc++
-CXXFLAGS  += -Wfloat-equal
+# CXXFLAGS  += -Wfloat-equal
 CXXFLAGS  += -Wsign-promo
 CXXFLAGS  += -Wmissing-declarations
 CXXFLAGS  += -Woverloaded-virtual
 CXXFLAGS  += -Wmissing-format-attribute
-CXXFLAGS  += -Wold-style-cast
+# CXXFLAGS  += -Wold-style-cast
 CXXFLAGS  += -Wshadow
 CXXFLAGS  += -Wctor-dtor-privacy
 
 ASFLAGS   += $(CPPFLAGS)
 ASFLAGS   += -x assembler-with-cpp
 
+LDFLAGS   += -lm
 # LDFLAGS   += -lmbedtls
 # LDFLAGS   += -lmbedx509
 # LDFLAGS   += -lmbedcrypto

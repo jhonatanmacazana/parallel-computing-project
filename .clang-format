@@ -12,3 +12,5 @@ AlignEscapedNewlines: true
 AlignTrailingComments: true
 DerivePointerAlignment: false
 PointerAlignment: Left
+IndentCaseLabels: false
+IndentPPDirectives: AfterHash
