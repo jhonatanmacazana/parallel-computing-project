@@ -16,8 +16,9 @@ void tred2(double **a, int n, double *d, double *e);
 int main(int argc, char** argv) {
     // Initialize model: Create tridiagonal matrix 
     double ** matrix;
-    int N = 100;
-    int n0 = 60;
+    int N = 10;
+    int n0 = 2;
+    double T = 0.5, dT = 0.01;
 
     double * D;
     double D0 = 1;
@@ -29,7 +30,11 @@ int main(int argc, char** argv) {
     double * m;
 
     double * diagonal;
+    double * X;
     double * subdiagonal;
+	double ** z;
+
+    int rows = N, cols = N;
     
     // m init
     m = new double[N];
@@ -50,7 +55,6 @@ int main(int argc, char** argv) {
     }
 
     // matrix init
-    int rows = N, cols = N;
     matrix = new double*[rows];
     for (int i = 0; i < rows; ++i)
         matrix[i] = new double[cols];
@@ -59,6 +63,16 @@ int main(int argc, char** argv) {
         for (int j = 0; j < cols; ++j)
             matrix[i][j] = D[i] * ( 2 * sg (i, j) - sg(i, j+1) - sg(i, j-1)) / sqrt(m[i]) / sqrt(m[j]);
 
+	// z init
+    z = new double*[rows];
+    for (int i = 0; i < rows; ++i)
+        z[i] = new double[cols];
+
+    for (int i = 0; i < rows; ++i)
+        for (int j = 0; j < cols; ++j)
+            z[i][j] = sg(i, j);
+
+
     // diagonal and subdiagonal init
     diagonal = new double[N];
     subdiagonal = new double[N-1];
@@ -66,15 +80,27 @@ int main(int argc, char** argv) {
     // Pass tred2 algorithm. For evaluation, not necessarily
     tred2(matrix, N, diagonal, subdiagonal);
 
-    // Read values diagonal and subdiagonal. Create a identity matrix z 
-    
     // Apply tqli algorithm
-
-    // Read eigenvalues (d) and eigenvectors (z)
+	tqli(diagonal, subdiagonal, N, z);
 
     // Replace values in equation of X(t)
+    X = new double[N];
+    for (double t = 0; t < T; t = t + dT){
+        for (int j = 0; j < cols; t++){
+        printf("Hello world\n");
+            for (int i = 0; i < rows; t++){
+                X[i] +=  z[i][j] * cos( diagonal[j] * t) +z[i][j] * sin( diagonal[j] * t);
+            }
+        }
+    }
+    
 
-    printf("Hello world\n");
+
+    // Read eigenvalues (d) and eigenvectors (z)
+	for (int i = 0; i < rows; ++i)
+        for (int j = 0; j < cols; ++j)
+			printf("%f, ", z[i][j]);
+
     return 0;
 }
 
@@ -172,12 +198,13 @@ input, d[1..n] contains the diagonal elements of the tridiagonal matrix. On outp
 the eigenvalues. The vector e[1..n] inputs the subdiagonal elements of the tridiagonal matrix,
 with e[1] arbitrary. On output e is destroyed. When finding only the eigenvalues, several lines
 may be omitted, as noted in the comments. If the eigenvectors of a tridiagonal matrix are desired,
-the matrix z[1..n][1..n] is input as the identity matrix. If the eigenvectors of a matrix
+the matrix z[1..n][1..n] is input as the z matrix. If the eigenvectors of a matrix
 that has been reduced by tred2 are required, then z is input as the matrix output by tred2.
 In either case, the kth column of z returns the normalized eigenvector corresponding to d[k].*/
 double pythag(double a, double b) {
     double absa, absb;
     absa = fabs(a);
+        printf("Hello world\n");
     absb = fabs(b);
     if (absa > absb)
         return absa * sqrt(1.0 + (absb / absa) * (absb / absa));
@@ -232,6 +259,7 @@ void tqli(double* d, double* e, int n, double** z) {
                 if (r == 0.0 && i >= l) continue;
                 d[l] -= p;
                 e[l] = g;
+				printf("%d ", m);
                 e[m] = 0.0;
             } /* end if-loop for m != 1 */
         } while (m != l);
