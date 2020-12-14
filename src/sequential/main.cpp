@@ -77,10 +77,10 @@ int main(int argc, char** argv) {
     subdiagonal = new double[N - 1];
 
     // Pass tred2 algorithm. For evaluation, not necessarily
-    tred2(matrix, N, e_val, subdiagonal);
+    // tred2(matrix, N, e_val, subdiagonal);
 
     // Apply tqli algorithm
-    // tqli(e_val, subdiagonal, N, e_vec);
+    tqli(e_val, subdiagonal, N, e_vec);
 
     for (double t = 0; t < T; t = t + dT) {  // Replace values in equation of X(t)
         for (int i = 0; i < N; i++) {        // Define X[0]
