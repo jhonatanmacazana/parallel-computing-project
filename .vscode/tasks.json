@@ -29,14 +29,11 @@
             "label": "make",
             "type": "shell",
             "command": "make -j4",
-            "group": {
-                "isDefault": true,
-                "kind": "build"
-            },
+            "group": "build",
             "presentation": {
                 "reveal": "silent",
                 "focus": false,
-                "showReuseMessage": false
+                "showReuseMessage": true
             }
         },
         {
@@ -58,6 +55,30 @@
                 "focus": false,
                 "showReuseMessage": false
             }
+        },
+        {
+            "label": "Build",
+            "type": "shell",
+            "command": "g++",
+            "presentation": {
+                "reveal": "silent",
+                "focus": false,
+                "showReuseMessage": false
+            },
+            "linux": {
+                "command": "g++",
+                "args": [
+                    "--std=c++11",
+                    "-g",
+                    "${workspaceFolder}/src/sequential/main.cpp",
+                    "-o",
+                    "${workspaceFolder}/main.out"
+                ]
+            },
+            "group": {
+                "isDefault": true,
+                "kind": "build"
+            },
         }
     ]
 }

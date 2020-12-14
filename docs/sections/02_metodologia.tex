@@ -1,3 +1,15 @@
 \section{Metodología}
+\subsection{Solución matemática}
+
+Un método de resolución es mediante un arreglo matricial. Considerese el sistema de ecuaciones mostrado en \ref{eq:state-equation}, se puede formar una matriz tridiagonal $M$
+
+
+\begin{equation*}
+	M_{ij} = \frac{D}{\sqrt{m_i m_j}} (2 \delta_{ij} - \delta_{i, j+1} - \delta_{i, j-1}) 
+\end{equation*}
+
+
+El cálculo de las vibraciones del sistema se reduce al cálculo de los valores propios y vectores propios de la matriz tridiagonal
+
 This document is a model and instructions for \LaTeX.
 Please observe the conference page limits. 
