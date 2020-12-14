@@ -2,7 +2,7 @@
 #define UTILS_H_
 
 #include <math.h>
-
+#include <omp.h>
 #include <iostream>
 
 /* ---------------------- Definition ---------------------- */
@@ -202,7 +202,6 @@ void tqli(double* d, double* e, int n, double** z) {
 
                 d[l] -= p;
                 e[l] = g;
-                printf("%d ", m);
                 e[m] = 0.0;
 
             } /* end if-loop for m != 1 */

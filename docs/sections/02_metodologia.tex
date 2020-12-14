@@ -8,11 +8,11 @@ Un método de resolución es mediante un arreglo matricial. Considerese el siste
     \label{eq:matrix-def}
 \end{equation}
 
-Esta representación de arreglo es plateada como alternativa de solución en la descripción del problema para este proyecto. En ese sentido, se conoce que el cálculo de las vibraciones del sistema se puede reducir al cálculo de los valores propios y vectores propios de la matriz tridiagonal. Se asume que dado el arreglo $M$, sus valores propios ($\lamda_i)$ y vectores propios $v_i$ pueden reemplazarse directamente en \ref{eq:state-equation}. Sea la ecuación \ref{eq:analytical-equation} la solución del sistema a partir del uso de los valores y vectores propios de $M$.
+Esta representación de arreglo es plateada como alternativa de solución en la descripción del problema para este proyecto. En ese sentido, se conoce que el cálculo de las vibraciones del sistema se puede reducir al cálculo de los valores propios y vectores propios de la matriz tridiagonal. Se asume que dado el arreglo $M$, sus valores propios ($\lambda_i)$ y vectores propios $v_i$ pueden reemplazarse directamente en \ref{eq:state-equation}. Sea la ecuación \ref{eq:analytical-solution} la solución del sistema a partir del uso de los valores y vectores propios de $M$.
 
 \begin{equation}
     y_{i} = \sum^{n}_{i=0} v_i \cos(\lambda_i t ) + v_i \sin(\lambda_i t )  
-    \label{eq:analyical-solution}
+    \label{eq:analytical-solution}
 \end{equation}
 
 \subsection{Implementación}
