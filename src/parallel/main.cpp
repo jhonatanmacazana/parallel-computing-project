@@ -18,7 +18,7 @@ int main(int argc, char** argv) {
     double ** matrix;
     int N = 10;
     int n0 = 2;
-    double T = 0.5, dT = 0.01;
+    double T = 2., dT = 0.01;
 
     double * D;
     double D0 = 1;
@@ -86,21 +86,14 @@ int main(int argc, char** argv) {
     // Replace values in equation of X(t)
     X = new double[N];
     for (double t = 0; t < T; t = t + dT){
-        for (int j = 0; j < cols; t++){
-        printf("Hello world\n");
-            for (int i = 0; i < rows; t++){
+        printf("%f ", t);
+        for (int j = 0; j < cols; j++){
+            for (int i = 0; i < rows; i++){
                 X[i] +=  z[i][j] * cos( diagonal[j] * t) +z[i][j] * sin( diagonal[j] * t);
             }
         }
     }
     
-
-
-    // Read eigenvalues (d) and eigenvectors (z)
-	for (int i = 0; i < rows; ++i)
-        for (int j = 0; j < cols; ++j)
-			printf("%f, ", z[i][j]);
-
     return 0;
 }
 
@@ -204,7 +197,6 @@ In either case, the kth column of z returns the normalized eigenvector correspon
 double pythag(double a, double b) {
     double absa, absb;
     absa = fabs(a);
-        printf("Hello world\n");
     absb = fabs(b);
     if (absa > absb)
         return absa * sqrt(1.0 + (absb / absa) * (absb / absa));
