@@ -1,114 +1,54 @@
+#ifndef UTILS_H_
+#define UTILS_H_
+
 #include <math.h>
 
 #include <iostream>
-
-using namespace std;
 
 /* ---------------------- Definition ---------------------- */
 #define SIGN(a, b) ((b) >= 0.0 ? fabs(a) : -fabs(a))
 
 /* ---------------------- Prototypes ---------------------- */
+
+/*QL algorithm with implicit shifts, to determine the eigenvalues and eigenvectors of a real,
+symmetric, tridiagonal matrix, or of a real, symmetric matrix previously reduced by tred2 §11.2. On
+input, d[1..n] contains the diagonal elements of the tridiagonal matrix. On output, it returns
+the eigenvalues. The vector e[1..n] inputs the subdiagonal elements of the tridiagonal matrix,
+with e[1] arbitrary. On output e is destroyed. When finding only the eigenvalues, several lines
+may be omitted, as noted in the comments. If the eigenvectors of a tridiagonal matrix are desired,
+the matrix z[1..n][1..n] is input as the z matrix. If the eigenvectors of a matrix
+that has been reduced by tred2 are required, then z is input as the matrix output by tred2.
+In either case, the kth column of z returns the normalized eigenvector corresponding to d[k].*/
 double pythag(double a, double b);
+
 void tqli(double* d, double* e, int n, double** z);
+
 double delta(int a, int b);
+
+/*
+ *     Performs a Housholder reduction of a real symmetric matrix
+ *     a[][]. On output a[][] is replaced by the orthogonal matrix
+ *     effecting the transformation. d[] returns the diagonal elements
+ *     of the tri-diagonal matrix, and e[] the off-diagonal elements,
+ *     with e[0] = 0.
+ *     The function is modified from the version in Numerical recipe.
+ *     */
 void tred2(double** a, int n, double* d, double* e);
 
-/* ---------------------- Main ---------------------- */
-int main(int argc, char** argv) {
-    // Initialize model: Create tridiagonal matrix
-    double** matrix;
-    int N    = 10;
-    int n0   = 2;
-    double T = 2., dT = 0.01;
-
-    double* D;
-    double D0 = 1;
-    double D1 = 1;
-
-    double m0 = 1;
-    double m1 = 10;
-
-    double* m;
-
-    double* diagonal;
-    double* X;
-    double* subdiagonal;
-    double** z;
-
-    int rows = N, cols = N;
-
-    // m init
-    m = new double[N];
-    for (int i = 0; i < N; ++i) {
-        m[i] = m0;
-        if (i == n0) {
-            m[i] = m1;
-        }
-    }
-
-    // D init
-    D = new double[N];
-    for (int i = 0; i < N; ++i) {
-        D[i] = D0;
-        if (i == n0) {
-            D[i] = D1;
-        }
-    }
-
-    // matrix init
-    matrix = new double*[rows];
-    for (int i = 0; i < rows; ++i) matrix[i] = new double[cols];
-
-    for (int i = 0; i < rows; ++i)
-        for (int j = 0; j < cols; ++j)
-            matrix[i][j] = D[i] * (2 * delta(i, j) - delta(i, j + 1) - delta(i, j - 1)) /
-                           sqrt(m[i]) / sqrt(m[j]);
-
-    // z init
-    z = new double*[rows];
-    for (int i = 0; i < rows; ++i) z[i] = new double[cols];
-
-    for (int i = 0; i < rows; ++i)
-        for (int j = 0; j < cols; ++j) z[i][j] = delta(i, j);
-
-    // diagonal and subdiagonal init
-    diagonal    = new double[N];
-    subdiagonal = new double[N - 1];
-
-    // Pass tred2 algorithm. For evaluation, not necessarily
-    tred2(matrix, N, diagonal, subdiagonal);
-
-    // Apply tqli algorithm
-    tqli(diagonal, subdiagonal, N, z);
-
-    // Replace values in equation of X(t)
-    X = new double[N];
-    for (double t = 0; t < T; t = t + dT) {
-        printf("%f ", t);
-        for (int j = 0; j < cols; j++) {
-            for (int i = 0; i < rows; i++) {
-                X[i] += z[i][j] * cos(diagonal[j] * t) + z[i][j] * sin(diagonal[j] * t);
-            }
-        }
-    }
-
-    return 0;
-}
+void tred2_straight(double** a, int n, double* d, double* e);
 
 /* ---------------------- Functions ---------------------- */
+
 // Impulse function
 double delta(int a, int b) { return (a == b) ? 1. : 0.; }
 
-/*
- *     ** The function
- *     **                tred2()
- *     ** perform a Housholder reduction of a real symmetric matrix
- *     ** a[][]. On output a[][] is replaced by the orthogonal matrix
- *     ** effecting the transformation. d[] returns the diagonal elements
- *     ** of the tri-diagonal matrix, and e[] the off-diagonal elements,
- *     ** with e[0] = 0.
- *     ** The function is modified from the version in Numerical recipe.
- *     */
+void tred2_straight(double** a, int n, double* d, double* e) {
+    for (int i = 0; i < n - 1; i++) {
+        d[i] = a[i][i];
+        e[i] = a[i + 1][i];
+    }
+    d[n - 1] = a[n - 1][n - 1];
+}
 
 void tred2(double** a, int n, double* d, double* e) {
     int l, k, j, i;
@@ -172,15 +112,6 @@ void tred2(double** a, int n, double* d, double* e) {
     }
 }
 
-/*QL algorithm with implicit shifts, to determine the eigenvalues and eigenvectors of a real,
-symmetric, tridiagonal matrix, or of a real, symmetric matrix previously reduced by tred2 §11.2. On
-input, d[1..n] contains the diagonal elements of the tridiagonal matrix. On output, it returns
-the eigenvalues. The vector e[1..n] inputs the subdiagonal elements of the tridiagonal matrix,
-with e[1] arbitrary. On output e is destroyed. When finding only the eigenvalues, several lines
-may be omitted, as noted in the comments. If the eigenvectors of a tridiagonal matrix are desired,
-the matrix z[1..n][1..n] is input as the z matrix. If the eigenvectors of a matrix
-that has been reduced by tred2 are required, then z is input as the matrix output by tred2.
-In either case, the kth column of z returns the normalized eigenvector corresponding to d[k].*/
 double pythag(double a, double b) {
     double absa, absb;
     absa = fabs(a);
@@ -206,7 +137,7 @@ void tqli(double* d, double* e, int n, double** z) {
             }
             if (m != l) {
                 if (iter++ == 30) {
-                    cout << "\n\nToo many iterations in tqli.\n";
+                    // perror("\n\nToo many iterations in tqli.\n");
                     exit(1);
                 }
                 g = (d[l + 1] - d[l]) / (2.0 * e[l]);
@@ -244,3 +175,5 @@ void tqli(double* d, double* e, int n, double** z) {
         } while (m != l);
     }
 }
+
+#endif  // UTILS_H_
