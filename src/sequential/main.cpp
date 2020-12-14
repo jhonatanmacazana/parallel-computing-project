@@ -10,7 +10,7 @@
 #define INITIAL_MASS    1.
 
 double** initializeMatrix(int rows, int cols);
-double* initializeMass(int size, double m0, double n0);
+double* initializeMass(int size, double initial_m, double initial_n);
 void terminateVector(double* vector);
 void terminateMatrix(double** matrix, int size);
 
@@ -20,23 +20,24 @@ int main(int argc, char** argv) {
     FILE* fout;
 #endif
 
-    double** matrix;
-    int N    = NUMBER_SPRINGS;
-    int n0   = 10;
-    double T = 10., dT = 0.01;
-
-    double D  = SPRING_CONSTANT;
-    double m0 = INITIAL_MASS;
-
-    double* m;
-
-    double* diagonal;
-    double* X;
-    double* subdiagonal;
-    double** z;
+    int N = NUMBER_SPRINGS;
 
     int rows = N;
     int cols = N;
+
+    int n0    = 10;  // Initial mass constant
+    double D  = 1.;  // Spring constant
+    double m0 = 1.;  // Initial mass
+
+    double T  = 10.;   // time limit
+    double dT = 0.01;  // time slots
+
+    double* diagonal;     // vector diagonal
+    double* subdiagonal;  // vector subdiagonal
+    double* m;            // Vector mass
+    double* X;            // Vector position
+    double** z;           // Matrix temporal
+    double** matrix;      // Matrix to calculate
 
 #ifdef EXPORT
     fout = fopen("results.csv", "w");
@@ -106,12 +107,12 @@ double** initializeMatrix(int rows, int cols) {
     return output;
 }
 
-double* initializeMass(int size, double m0, double n0) {
+double* initializeMass(int size, double initial_m, double initial_n) {
     double* output = new double[size];
     for (int i = 0; i < size; ++i) {
-        output[i] = m0;
-        if (i == n0) {
-            output[i] = 100 * m0;
+        output[i] = initial_m;
+        if (i == initial_n) {
+            output[i] = 100 * initial_m;
         }
     }
     return output;
