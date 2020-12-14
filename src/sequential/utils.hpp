@@ -85,7 +85,9 @@ void tred2(double** a, int n, double* d, double* e) {
                 for (j = 0; j < l + 1; j++) {
                     f    = a[i][j];
                     e[j] = g = e[j] - hh * f;
-                    for (k = 0; k < j + 1; k++) a[j][k] -= (f * e[k] + g * a[i][k]);
+                    for (k = 0; k < j + 1; k++) {
+                        a[j][k] -= (f * e[k] + g * a[i][k]);
+                    }
                 }
             }
         } else
@@ -95,6 +97,7 @@ void tred2(double** a, int n, double* d, double* e) {
     // Next statement can be omitted if eigenvectors not wanted
     d[0] = 0.0;
     e[0] = 0.0;
+
     // Contents of this loop can be omitted if eigenvectors not
     //	wanted except for statement d[i]=a[i][i];
     for (i = 0; i < n; i++) {
@@ -108,7 +111,10 @@ void tred2(double** a, int n, double* d, double* e) {
         }
         d[i]    = a[i][i];
         a[i][i] = 1.0;
-        for (j = 0; j < l; j++) a[j][i] = a[i][j] = 0.0;
+
+        for (j = 0; j < l; j++) {
+            a[j][i] = a[i][j] = 0.0;
+        }
     }
 }
 
@@ -126,8 +132,12 @@ void tqli(double* d, double* e, int n, double** z) {
     register int m, l, iter, i, k;
     double s, r, p, g, f, dd, c, b;
 
-    for (i = 1; i < n; i++) e[i - 1] = e[i];
+    for (i = 1; i < n; i++) {
+        e[i - 1] = e[i];
+    }
+
     e[n] = 0.0;
+
     for (l = 0; l < n; l++) {
         iter = 0;
         do {
@@ -140,37 +150,45 @@ void tqli(double* d, double* e, int n, double** z) {
                     // perror("\n\nToo many iterations in tqli.\n");
                     exit(1);
                 }
+
                 g = (d[l + 1] - d[l]) / (2.0 * e[l]);
                 r = pythag(g, 1.0);
                 g = d[m] - d[l] + e[l] / (g + SIGN(r, g));
                 s = c = 1.0;
                 p     = 0.0;
+
                 for (i = m - 1; i >= l; i--) {
                     f        = s * e[i];
                     b        = c * e[i];
                     e[i + 1] = (r = pythag(f, g));
+
                     if (r == 0.0) {
                         d[i + 1] -= p;
                         e[m] = 0.0;
                         break;
                     }
+
                     s        = f / r;
                     c        = g / r;
                     g        = d[i + 1] - p;
                     r        = (d[i] - g) * s + 2.0 * c * b;
                     d[i + 1] = g + (p = s * r);
                     g        = c * r - b;
+
                     for (k = 0; k < n; k++) {
                         f           = z[k][i + 1];
                         z[k][i + 1] = s * z[k][i] + c * f;
                         z[k][i]     = c * z[k][i] - s * f;
                     } /* end k-loop */
-                }     /* end i-loop */
+
+                } /* end i-loop */
                 if (r == 0.0 && i >= l) continue;
+
                 d[l] -= p;
                 e[l] = g;
                 printf("%d ", m);
                 e[m] = 0.0;
+
             } /* end if-loop for m != 1 */
         } while (m != l);
     }
