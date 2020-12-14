@@ -10,19 +10,35 @@
 
 /* ---------------------- Prototypes ---------------------- */
 
-/*QL algorithm with implicit shifts, to determine the eigenvalues and eigenvectors of a real,
-symmetric, tridiagonal matrix, or of a real, symmetric matrix previously reduced by tred2 §11.2. On
-input, d[1..n] contains the diagonal elements of the tridiagonal matrix. On output, it returns
-the eigenvalues. The vector e[1..n] inputs the subdiagonal elements of the tridiagonal matrix,
-with e[1] arbitrary. On output e is destroyed. When finding only the eigenvalues, several lines
-may be omitted, as noted in the comments. If the eigenvectors of a tridiagonal matrix are desired,
-the matrix z[1..n][1..n] is input as the z matrix. If the eigenvectors of a matrix
-that has been reduced by tred2 are required, then z is input as the matrix output by tred2.
-In either case, the kth column of z returns the normalized eigenvector corresponding to d[k].*/
 double pythag(double a, double b);
 
+/*
+ *   QL algorithm with implicit shifts, to determine the eigenvalues and eigenvectors of a real,
+ *   symmetric, tridiagonal matrix, or of a real, symmetric matrix previously reduced by tred2
+ * §11.2.
+ *   @inputs:
+ *       double* d       diagonal elements of the tridiagonal matrix
+ *       double* e       subdiagonal elements of the tridiagonal matrix. e[1] arbitrary
+ *       int n           size of square matrix (1..n)
+ *       double** z      Z matrix, could be the output of tred2
+ *   @outputs
+ *       double* d       eigenvalues
+ *       double* e       destroyed
+ *       double** z      kth column is the normalized eigenvector corresponding to d[k]
+ */
 void tqli(double* d, double* e, int n, double** z);
 
+/*
+ *   delta() function
+ *
+ *   @inputs:
+ *       int a       num1 to test
+ *       int b       num2 to test
+ *
+ *   @outputs
+ *       double          1 if a == b. Otherwise, 0
+ *
+ */
 double delta(int a, int b);
 
 /*
@@ -32,7 +48,7 @@ double delta(int a, int b);
  *     of the tri-diagonal matrix, and e[] the off-diagonal elements,
  *     with e[0] = 0.
  *     The function is modified from the version in Numerical recipe.
- *     */
+ * */
 void tred2(double** a, int n, double* d, double* e);
 
 void tred2_straight(double** a, int n, double* d, double* e);
@@ -136,7 +152,7 @@ void tqli(double* d, double* e, int n, double** z) {
         e[i - 1] = e[i];
     }
 
-    e[n] = 0.0;
+    e[n - 1] = 0.0;
 
     for (l = 0; l < n; l++) {
         iter = 0;
