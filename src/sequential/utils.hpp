@@ -152,7 +152,7 @@ void tqli(double* d, double* e, int n, double** z) {
         e[i - 1] = e[i];
     }
 
-    e[n] = 0.0;
+    e[n - 1] = 0.0;
 
     for (l = 0; l < n; l++) {
         iter = 0;
