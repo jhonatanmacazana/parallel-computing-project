@@ -80,7 +80,7 @@ int main(int argc, char** argv) {
     tred2(matrix, N, e_val, subdiagonal);
 
     // Apply tqli algorithm
-    // tqli(e_val, subdiagonal, N, e_vec);
+    tqli(e_val, subdiagonal, N, e_vec);
 
     for (double t = 0; t < T; t = t + dT) {  // Replace values in equation of X(t)
         for (int i = 0; i < N; i++) {        // Define X[0]

@@ -145,8 +145,10 @@ double pythag(double a, double b) {
 }
 
 void tqli(double* d, double* e, int n, double** z) {
-    register int m, l, iter, i, k;
+    register int m, l, iter, i, k, inner_3_iter;
     double s, r, p, g, f, dd, c, b;
+    volatile bool flag_inner_1, flag_inner_2, flag_inner_3;
+    int max_iter = 100;
 
     for (i = 1; i < n; i++) {
         e[i - 1] = e[i];
@@ -154,58 +156,75 @@ void tqli(double* d, double* e, int n, double** z) {
 
     e[n - 1] = 0.0;
 
+    //#pragma omp parallel for default(shared) private(l, iter, d) reduction(-:d[:n])
     for (l = 0; l < n; l++) {
         iter = 0;
-        do {
-            for (m = l; m < n - 1; m++) {
-                dd = fabs(d[m]) + fabs(d[m + 1]);
-                if ((double)(fabs(e[m]) + dd) == dd) break;
-            }
-            if (m != l) {
-                if (iter++ == 30) {
-                    // perror("\n\nToo many iterations in tqli.\n");
-                    exit(1);
+        flag_inner_3 = true;
+        //do {
+        #pragma omp parallel for shared(flag_inner_3, inner_3_iter, iter)
+        for ( inner_3_iter = 0; inner_3_iter < max_iter; inner_3_iter++)
+            if (flag_inner_3){
+                flag_inner_2 = true;
+                #pragma omp parallel for shared(flag_inner_2, e)
+                for (m = l; m < n - 1; m++) {
+                    if (flag_inner_2){
+                        dd = fabs(d[m]) + fabs(d[m + 1]);
+                    }
+                    if ((double)(fabs(e[m]) + dd) == dd) flag_inner_2 = false;
                 }
 
-                g = (d[l + 1] - d[l]) / (2.0 * e[l]);
-                r = pythag(g, 1.0);
-                g = d[m] - d[l] + e[l] / (g + SIGN(r, g));
-                s = c = 1.0;
-                p     = 0.0;
-
-                for (i = m - 1; i >= l; i--) {
-                    f        = s * e[i];
-                    b        = c * e[i];
-                    e[i + 1] = (r = pythag(f, g));
-
-                    if (r == 0.0) {
-                        d[i + 1] -= p;
-                        e[m] = 0.0;
-                        break;
+                if (m != l) {
+                    if (iter++ == 30 || inner_3_iter > max_iter) {
+                        // perror("\n\nToo many iterations in tqli.\n");
+                        exit(0);
                     }
 
-                    s        = f / r;
-                    c        = g / r;
-                    g        = d[i + 1] - p;
-                    r        = (d[i] - g) * s + 2.0 * c * b;
-                    d[i + 1] = g + (p = s * r);
-                    g        = c * r - b;
+                    g = (d[l + 1] - d[l]) / (2.0 * e[l]);
+                    r = pythag(g, 1.0);
+                    g = d[m] - d[l] + e[l] / (g + SIGN(r, g));
+                    s = c = 1.0;
+                    p     = 0.0;
 
-                    for (k = 0; k < n; k++) {
-                        f           = z[k][i + 1];
-                        z[k][i + 1] = s * z[k][i] + c * f;
-                        z[k][i]     = c * z[k][i] - s * f;
-                    } /* end k-loop */
+                    flag_inner_1 = true;
+                    #pragma omp parallel for shared(e, d, flag_inner_1)// reduction(-:d[:n])
+                    for (i = m - 1; i >= l; i--) {
+                        if (flag_inner_1) {
+                            f        = s * e[i];
+                            b        = c * e[i];
+                            e[i + 1] = (r = pythag(f, g));
 
-                } /* end i-loop */
-                if (r == 0.0 && i >= l) continue;
+                            if (r == 0.0) {
+                                d[i + 1] -= p;
+                                e[m] = 0.0;
+                                flag_inner_1 = false;
+                            }
 
-                d[l] -= p;
-                e[l] = g;
-                e[m] = 0.0;
+                            s        = f / r;
+                            c        = g / r;
+                            g        = d[i + 1] - p;
+                            r        = (d[i] - g) * s + 2.0 * c * b;
+                            d[i + 1] = g + (p = s * r);
+                            g        = c * r - b;
+                            
+                            #pragma omp parallel for default(shared) private(k, f)  
+                            for (k = 0; k < n; k++) {
+                                f           = z[k][i + 1];
+                                z[k][i + 1] = s * z[k][i] + c * f;
+                                z[k][i]     = c * z[k][i] - s * f;
+                            } /* end k-loop */
+                        }
+                    } /* end i-loop */
+                    //if (r == 0.0 && i >= l) continue;
+                    if (!(r == 0.0 && i >= l)){
+                        d[l] -= p;
+                        e[l] = g;
+                        e[m] = 0.0;
+                    }
 
-            } /* end if-loop for m != 1 */
-        } while (m != l);
+                } /* end if-loop for m != 1 */
+                if (m != l) flag_inner_3 = false;
+            }
+        //} while (m != l);
     }
 }
 
