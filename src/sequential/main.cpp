@@ -11,6 +11,9 @@
 
 double** initializeMatrix(int rows, int cols);
 double* initializeMass(int size, double initial_m, double initial_n);
+
+void printMatrix(double** matrix, int rows, int cols);
+
 void terminateVector(double* vector);
 void terminateMatrix(double** matrix, int size);
 
@@ -20,23 +23,23 @@ int main(int argc, char** argv) {
     FILE* fout;
 #endif
 
-    int N = NUMBER_SPRINGS;
+    const int N = NUMBER_SPRINGS;
 
-    int rows = N;
-    int cols = N;
+    const int rows = N;
+    const int cols = N;
 
-    int n0    = 10;  // Initial mass constant
-    double D  = 1.;  // Spring constant
-    double m0 = 1.;  // Initial mass
+    const int n0    = 10;  // Initial mass constant
+    const double D  = 1.;  // Spring constant
+    const double m0 = 1.;  // Initial mass
 
-    double T  = 10.;   // time limit
-    double dT = 0.01;  // time slots
+    const double T  = 10.;   // time limit
+    const double dT = 0.01;  // time slots
 
-    double* diagonal;     // vector diagonal
+    double* e_val;        // vector diagonal
     double* subdiagonal;  // vector subdiagonal
     double* m;            // Vector mass
     double* X;            // Vector position
-    double** z;           // Matrix temporal
+    double** e_vec;       // Matrix temporal
     double** matrix;      // Matrix to calculate
 
 #ifdef EXPORT
@@ -59,23 +62,25 @@ int main(int argc, char** argv) {
     }
 
     // z init
-    z = initializeMatrix(rows, cols);
+    e_vec = initializeMatrix(rows, cols);
 
     for (int i = 0; i < rows; ++i) {
         for (int j = 0; j < cols; ++j) {
-            z[i][j] = delta(i, j);
+            e_vec[i][j] = delta(i, j);
         }
     }
 
+    // printMatrix(e_vec, rows, cols);
+
     // diagonal and subdiagonal init
-    diagonal    = new double[N];
+    e_val       = new double[N];
     subdiagonal = new double[N - 1];
 
     // Pass tred2 algorithm. For evaluation, not necessarily
-    tred2(matrix, N, diagonal, subdiagonal);
+    tred2(matrix, N, e_val, subdiagonal);
 
     // Apply tqli algorithm
-    // tqli(diagonal, subdiagonal, N, z);
+    // tqli(e_val, subdiagonal, N, e_vec);
 
     for (double t = 0; t < T; t = t + dT) {  // Replace values in equation of X(t)
         for (int i = 0; i < N; i++) {        // Define X[0]
@@ -84,7 +89,7 @@ int main(int argc, char** argv) {
 
         for (int i = 0; i < rows; i++) {
             for (int j = 0; j < cols; j++) {
-                X[i] += z[i][j] * cos(diagonal[j] * t) + z[i][j] * sin(diagonal[j] * t);
+                X[i] += e_vec[i][j] * cos(e_val[j] * t) + e_vec[i][j] * sin(e_val[j] * t);
             }
 
 #ifdef EXPORT
@@ -96,6 +101,7 @@ int main(int argc, char** argv) {
 #endif
     }
 
+    terminateMatrix(e_vec, N);
     return 0;
 }
 
@@ -124,5 +130,14 @@ void terminateMatrix(double** matrix, int size) {
     for (int i = 0; i < size; i++) {
         double* tempPointer = matrix[i];
         free(tempPointer);
+    }
+}
+
+void printMatrix(double** matrix, int rows, int cols) {
+    for (int i = 0; i < rows; i++) {
+        for (int j = 0; j < cols; j++) {
+            printf("%4.2f ", matrix[i][j]);
+        }
+        printf("\n");
     }
 }
