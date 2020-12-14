@@ -1,15 +1,25 @@
 \section{Metodología}
 \subsection{Solución matemática}
 
-Un método de resolución es mediante un arreglo matricial. Considerese el sistema de ecuaciones mostrado en \ref{eq:state-equation}, se puede formar una matriz tridiagonal $M$
+Un método de resolución es mediante un arreglo matricial. Considerese el sistema de ecuaciones mostrado en \ref{eq:state-equation}, se puede formar una matriz tridiagonal $M$ definida como en \ref{eq:matrix-def}, donde $\delta$ se define como $\delta_{i,j} = 1, \text{si i = j}$.
 
+\begin{equation}
+    M_{ij} = \frac{D}{\sqrt{m_i m_j}} (2 \delta_{ij} - \delta_{i, j+1} - \delta_{i, j-1}) 
+    \label{eq:matrix-def}
+\end{equation}
 
-\begin{equation*}
-	M_{ij} = \frac{D}{\sqrt{m_i m_j}} (2 \delta_{ij} - \delta_{i, j+1} - \delta_{i, j-1}) 
-\end{equation*}
+Esta representación de arreglo es plateada como alternativa de solución en la descripción del problema para este proyecto. En ese sentido, se conoce que el cálculo de las vibraciones del sistema se puede reducir al cálculo de los valores propios y vectores propios de la matriz tridiagonal. Se asume que dado el arreglo $M$, sus valores propios ($\lamda_i)$ y vectores propios $v_i$ pueden reemplazarse directamente en \ref{eq:state-equation}. Sea la ecuación \ref{eq:analytical-equation} la solución del sistema a partir del uso de los valores y vectores propios de $M$.
 
+\begin{equation}
+    y_{i} = \sum^{n}_{i=0} v_i \cos(\lambda_i t ) + v_i \sin(\lambda_i t )  
+    \label{eq:analyical-solution}
+\end{equation}
 
-El cálculo de las vibraciones del sistema se reduce al cálculo de los valores propios y vectores propios de la matriz tridiagonal
+\subsection{Implementación}
+Para la obtención de los valores y vectores propios, se usa el método Tridiagonal Quadratic Linear Implicit (tqli). El algoritmo funciona para una matriz simétrica tridiagonal, por lo que propone utilizar un método de tridiagonalización utilizando un algoritmo tred2. Sin embargo, particularmente el modelo definido $M$ es simétrica tridiagonal. Por ello, se corrieron ambas opciones que considera el uso de tred2. 
 
-This document is a model and instructions for \LaTeX.
-Please observe the conference page limits. 
+\subsubsection{Código secuencial}
+Pseudo code 
+
+\subsubsection{Código paralelo}
+Pseduo code. Cluster
