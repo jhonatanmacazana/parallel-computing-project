@@ -75,9 +75,11 @@ par-output: ${SOURCES_P}/main.cpp
 
 run-seq: ${OUTPUT_S}
 	@$<
+	@mv results.csv tests/results-seq.csv
 
 run-par: ${OUTPUT_P}
 	@$<
+	@mv results.csv tests/results-par.csv
 
 
 clean:
