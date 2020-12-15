@@ -7,13 +7,12 @@ set -eu
 cd "${0%/*}"
 
 # Compilation
-make seq
+make par
 
-echo "tasks,NRA,time-ms"
-echo "sequential"
+echo "tasks,N,time-tqli,time-all"
 # Execution
-for _i in {2..8}; do
-    make run-seq
+for _i in {1..5}; do          # iterations
+    make run-par >outputx.csv # code displays taskas, currentN and time
 done
 
 # Cleanup

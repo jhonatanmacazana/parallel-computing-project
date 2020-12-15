@@ -8,6 +8,8 @@
 // #define EXPORT  // shows results on CSV
 // #define DEBUG   // shows results on screen
 
+#define NUM_ITERATIONS 10
+
 #define NUMBER_SPRINGS  99
 #define SPRING_CONSTANT 1.
 #define INITIAL_MASS    1.
@@ -33,10 +35,7 @@ int main(int argc, char** argv) {
     FILE* fout;
 #endif
 
-    const int N = NUMBER_SPRINGS;
-
-    const int rows = N;
-    const int cols = N;
+    int N = NUMBER_SPRINGS;
 
     const int n0    = 10;  // Initial mass constant
     const double D  = 1.;  // Spring constant
@@ -52,7 +51,7 @@ int main(int argc, char** argv) {
     double** e_vec;       // Matrix temporal
     double** matrix;      // Matrix to calculate
 
-    double t1, t2;
+    double t1, t2, t3, t4;
 
 #ifdef EXPORT
     fout = fopen("results.csv", "w");
@@ -62,63 +61,78 @@ int main(int argc, char** argv) {
     }
 #endif
 
-    X      = new double[N];
-    m      = initializeMass(N, m0, n0);
-    matrix = initializeMatrix(rows, cols);
+    for (int it = 0; it < NUM_ITERATIONS; it++) {
+        for (int numThreads = 2; numThreads <= 8; numThreads += 2) {
+            omp_set_num_threads(numThreads);
 
-    for (int i = 0; i < rows; ++i) {
-        for (int j = 0; j < cols; ++j) {
-            matrix[i][j] =
-                D * (2 * delta(i, j) - delta(i, j + 1) - delta(i, j - 1)) / sqrt(m[i] * m[j]);
-        }
-    }
+            for (int N = 49; N < 100; N += 10) {
+                int rows = N;
+                int cols = N;
 
-    // z init
-    e_vec = initializeMatrix(rows, cols);
+                t3 = omp_get_wtime();
 
-    for (int i = 0; i < rows; ++i) {
-        for (int j = 0; j < cols; ++j) {
-            e_vec[i][j] = delta(i, j);
-        }
-    }
+                X      = new double[N];
+                m      = initializeMass(N, m0, n0);
+                matrix = initializeMatrix(rows, cols);
+
+                for (int i = 0; i < rows; ++i) {
+                    for (int j = 0; j < cols; ++j) {
+                        matrix[i][j] = D * (2 * delta(i, j) - delta(i, j + 1) - delta(i, j - 1)) /
+                                       sqrt(m[i] * m[j]);
+                    }
+                }
+
+                // z init
+                e_vec = initializeMatrix(rows, cols);
+
+                for (int i = 0; i < rows; ++i) {
+                    for (int j = 0; j < cols; ++j) {
+                        e_vec[i][j] = delta(i, j);
+                    }
+                }
 
 #ifdef DEBUG
-    printMatrix(e_vec, rows, cols);
+                printMatrix(e_vec, rows, cols);
 #endif
 
-    // diagonal and subdiagonal init
-    e_val       = new double[N];
-    subdiagonal = new double[N - 1];
+                // diagonal and subdiagonal init
+                e_val       = new double[N];
+                subdiagonal = new double[N - 1];
 
-    // Pass tred2 algorithm. For evaluation, not necessarily
-    tred2(matrix, N, e_val, subdiagonal);
+                // Pass tred2 algorithm. For evaluation, not necessarily
+                tred2(matrix, N, e_val, subdiagonal);
 
-    // printMatrix(e_vec, rows, cols);
+                // printMatrix(e_vec, rows, cols);
 
-    // Apply tqli algorithm
-    t1 = omp_get_wtime();
-    tqli(e_val, subdiagonal, N, e_vec);
-    t2 = omp_get_wtime();
-    for (double t = 0; t < T; t = t + dT) {  // Replace values in equation of X(t)
-        for (int i = 0; i < N; i++) {        // Define X[0]
-            X[i] = 10. * double(i);
-        }
+                // Apply tqli algorithm
+                t1 = omp_get_wtime();
+                tqli(e_val, subdiagonal, N, e_vec);
+                t2 = omp_get_wtime();
+                for (double t = 0; t < T; t = t + dT) {  // Replace values in equation of X(t)
+                    for (int i = 0; i < N; i++) {        // Define X[0]
+                        X[i] = 10. * double(i);
+                    }
 
-        for (int i = 0; i < rows; i++) {
-            for (int j = 0; j < cols; j++) {
-                X[i] += e_vec[i][j] * cos(e_val[j] * t) + e_vec[i][j] * sin(e_val[j] * t);
+                    for (int i = 0; i < rows; i++) {
+                        for (int j = 0; j < cols; j++) {
+                            X[i] +=
+                                e_vec[i][j] * cos(e_val[j] * t) + e_vec[i][j] * sin(e_val[j] * t);
+                        }
+
+#ifdef EXPORT
+                        fprintf(fout, "%lf,", X[i]);
+#endif
+                    }
+#ifdef EXPORT
+                    fprintf(fout, "\n");
+#endif
+                }
+
+                t4 = omp_get_wtime();
+                printf("%d,%d,%9.6f,%9.6f\n", numThreads, N, (t2 - t1) * 1000, (t4 - t3) * 1000);
             }
-
-#ifdef EXPORT
-            fprintf(fout, "%lf,", X[i]);
-#endif
         }
-#ifdef EXPORT
-        fprintf(fout, "\n");
-#endif
     }
-
-    printf("t: %9.6f ms\n", (t2 - t1) * 1000);
 
     terminateMatrix(e_vec, N);
     return 0;
