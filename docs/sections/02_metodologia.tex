@@ -18,7 +18,7 @@ Esta representación de arreglo es plateada como alternativa de solución en la 
 \subsection{Código}
 \subsubsection{Código general}
 
-Para la obtención de los valores y vectores propios, se usa el método Tridiagonal Quadratic Linear Implicit (tqli). El algoritmo funciona para una matriz simétrica tridiagonal, por lo que propone utilizar un método de tridiagonalización utilizando un algoritmo tred2. Sin embargo, particularmente el modelo definido $M$ es simétrica tridiagonal. Por ello, se corrieron ambas opciones que considera el uso de tred2. Por conveniencia y seguir lo recomendado por la funcion, se utilizo tred2.
+Para la obtención de los valores y vectores propios, se usa el método Tridiagonal Quadratic Linear Implicit (tqli). El algoritmo funciona para una matriz simétrica tridiagonal, por lo que propone utilizar un método de tridiagonalización utilizando un algoritmo tred2. Sin embargo, particularmente el modelo definido $M$ es simétrica tridiagonal. Por ello, se corrieron ambas opciones que considera el uso de tred2. Por conveniencia y seguir lo recomendado por la funcion, se utilizo tred2. Estas recomendaciones fueron extraídas del libro Numerical recipes \cite{press2007numerical}.
 
 El codigo implementado sigue el siguiente pseudo codigo mostrado. 
 \begin{verbatim}
@@ -31,7 +31,7 @@ El codigo implementado sigue el siguiente pseudo codigo mostrado.
 		X = X0 + y(aval, avect, t);
 \end{verbatim}
 
-Las variaciones realizadas y es donde se midio el desempeño del codigo es para la función tqli, que además de haber sido modificado del libro, se ha paralelizado mediante OpenMP.
+Las variaciones realizadas y es donde se midio el desempeño del codigo es para la función tqli, que además de haber sido modificado del libro, se ha paralelizado mediante OpenMP \cite{al2017parallel}.
 
 
 \subsubsection{Código paralelo}
