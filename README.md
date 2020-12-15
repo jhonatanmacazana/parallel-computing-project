@@ -14,7 +14,14 @@ sudo apt install build-essentials make
 Compilar el código
 
 ``` bash
-make all
+# Compila paralelo y sequencial en carpetas separadas
+make
+
+# Compila solo paralelo
+make par
+
+# Compila solo secuencial
+make seq
 ```
 
 ## Ejecución en local
@@ -22,10 +29,19 @@ make all
 Ejecutar el código secuencial
 
 ``` bash
-make run
+# Ejecutar solo paralelo
+make run-par
+
+# Ejecutar solo secuencial
+make run-seq
 ```
 
-## Ejecución en cluster
+
+## Adicionales
+
+El makefile puede generar archivos para su impresión si al ambiente (`seq` o  `par`) se la añade `-debug` (en consola) o `-export` (en un archivo) al final.
+Crea los archivos necesarios y los elimina con `make clean`.
+
 
 ## Enunciado
 
