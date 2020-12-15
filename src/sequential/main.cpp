@@ -62,8 +62,6 @@ int main(int argc, char** argv) {
     }
 #endif
 
-    t1 = omp_get_wtime();
-
     X      = new double[N];
     m      = initializeMass(N, m0, n0);
     matrix = initializeMatrix(rows, cols);
@@ -98,8 +96,9 @@ int main(int argc, char** argv) {
     // printMatrix(e_vec, rows, cols);
 
     // Apply tqli algorithm
+    t1 = omp_get_wtime();
     tqli(e_val, subdiagonal, N, e_vec);
-
+    t2 = omp_get_wtime();
     for (double t = 0; t < T; t = t + dT) {  // Replace values in equation of X(t)
         for (int i = 0; i < N; i++) {        // Define X[0]
             X[i] = 10. * double(i);
@@ -118,7 +117,6 @@ int main(int argc, char** argv) {
         fprintf(fout, "\n");
 #endif
     }
-    t2 = omp_get_wtime();
 
     printf("t: %9.6f ms\n", (t2 - t1) * 1000);
 
