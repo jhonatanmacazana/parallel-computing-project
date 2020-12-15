@@ -8,7 +8,7 @@
 
 /* ---------------------- Definition ---------------------- */
 #define SIGN(a, b) ((b) >= 0.0 ? fabs(a) : -fabs(a))
-#define SQR(a)     (a * a)
+#define SQR(a)     ((a) * (a))
 
 /* ---------------------- Prototypes ---------------------- */
 
