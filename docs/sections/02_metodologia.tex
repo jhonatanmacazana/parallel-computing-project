@@ -18,7 +18,7 @@ Esta representación de arreglo es plateada como alternativa de solución en la 
 \subsection{Código}
 \subsubsection{Código general}
 
-Para la obtención de los valores y vectores propios, se usa el método Tridiagonal Quadratic Linear Implicit (tqli). El algoritmo funciona para una matriz simétrica tridiagonal, por lo que propone utilizar un método de tridiagonalización utilizando un algoritmo tred2. Sin embargo, particularmente el modelo definido $M$ es simétrica tridiagonal. Por ello, se corrieron ambas opciones que considera el uso de tred2. Por conveniencia y seguir lo recomendado por la funcion, se utilizo tred2.
+Para la obtención de los valores y vectores propios, se usa el método Tridiagonal Quadratic Linear Implicit (tqli). El algoritmo funciona para una matriz simétrica tridiagonal, por lo que propone utilizar un método de tridiagonalización utilizando un algoritmo tred2. Sin embargo, particularmente el modelo definido $M$ es simétrica tridiagonal. Por ello, se corrieron ambas opciones que considera el uso de tred2. Por conveniencia y seguir lo recomendado por la funcion, se utilizo tred2. Estas recomendaciones fueron extraídas del libro Numerical recipes \cite{press2007numerical}.
 
 El codigo implementado sigue el siguiente pseudo codigo mostrado. 
 \begin{verbatim}
@@ -26,12 +26,12 @@ El codigo implementado sigue el siguiente pseudo codigo mostrado.
 	matrix = initializeMatrix(n, n);
 	diag, subdiag <- tred2(matrix, n);
 	aval, avect <- tqli(diag, subdiag);
-	// Simulación
+	// Simulation
 	for t in 0:dT:T
 		X = X0 + y(aval, avect, t);
 \end{verbatim}
 
-Las variaciones realizadas y es donde se midio el desempeño del codigo es para la función tqli, que además de haber sido modificado del libro, se ha paralelizado mediante OpenMP.
+Las variaciones realizadas y es donde se midio el desempeño del codigo es para la función tqli, que además de haber sido modificado del libro, se ha paralelizado mediante OpenMP \cite{al2017parallel}.
 
 
 \subsubsection{Código paralelo}
@@ -46,3 +46,6 @@ Para un uso más simple y rápido, se generaron archivos \text{Makefile} con los
 
 Se plantearon dos tipos de experimentos para revisar el comportamiento del sistema. Para el primer caso, se plantea revisar el comportamiento por un tiempo $T = 10s$, para un $m_i = 1 kg$, excepto para un $n_0 = 30, 60$, donde $m_{n_0} = 100 kg$. El comportamiento en tiempo, se analizará posteriormente. Para el segundo lugar, se correrá el código para medir su desempeño. Se plantea correr 10 veces el código para $n={59,69,79,89,99}$. Para el caso en paralelo, se correrá el código para $p={2,4,6,8}$. Todos estos casos se correrán de manera local, en el cluster proporcionado por UTEC y en un servidor propio para benchmarking.
 
+Para agilizar el desarrollo y poder compilar en diferentes entornos de manera simple, se crea un archivo \textit{Makefile} en donde las directivas existentes puededn mostrarse con el comando \textit{make help}. Con estas directivas, es posible compilar, ejecutar y limpiar los archivos generados con los programas tanto secuencial como paralelo. Se utiliza el formato de \textit{make seq} o \textit{make par} para compilar el codigo en secuencial o paralelo respectivamente. Asimismo, existen directivas en el código para mostrar salidas en consola (-DDEBUG) o en un archivo (-DEXPORT). Se puede ejecutar ambas versiones con ayuda del \textit{Makefile} utilizando el formato \textit{make version-environment}, en donde \textit{version} puede ser \textbf{seq} o \textbf{seq} y \textit{environment} puede ser \textbf{debug} o \textbf{output}. 
+
+Finalmente, con estos comandos disponibles, se creó un archivo para facilitar la generación de tests, el cual es el archivo \textit{testLocal.sh}. Este archivo permite compilar, ejecutar, y limpiar los archivos de manera correcta.
