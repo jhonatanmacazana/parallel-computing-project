@@ -4,10 +4,15 @@
 
 #include "utils.hpp"
 
-#define EXPORT
-#define NUMBER_SPRINGS  99
+#define EXPORT  // shows results on CSV
+// #define DEBUG   // shows results on screen
+
+#define NUMBER_SPRINGS  9
 #define SPRING_CONSTANT 1.
 #define INITIAL_MASS    1.
+
+#define TIME_LIMIT 10.
+#define TIME_STEPS 0.01
 
 double** initializeMatrix(int rows, int cols);
 double* initializeMass(int size, double initial_m, double initial_n);
@@ -16,6 +21,10 @@ void printMatrix(double** matrix, int rows, int cols);
 
 void terminateVector(double* vector);
 void terminateMatrix(double** matrix, int size);
+
+#if NUMBER_SPRINGS % 2 == 0
+#    error NUMBER_SPRINGS must be odd
+#endif
 
 /* ---------------------- Main ---------------------- */
 int main(int argc, char** argv) {
@@ -32,8 +41,8 @@ int main(int argc, char** argv) {
     const double D  = 1.;  // Spring constant
     const double m0 = 1.;  // Initial mass
 
-    const double T  = 10.;   // time limit
-    const double dT = 0.01;  // time slots
+    const double T  = TIME_LIMIT;  // time limit
+    const double dT = TIME_STEPS;  // time slots
 
     double* e_val;        // vector diagonal
     double* subdiagonal;  // vector subdiagonal
@@ -70,7 +79,9 @@ int main(int argc, char** argv) {
         }
     }
 
-    // printMatrix(e_vec, rows, cols);
+#ifdef DEBUG
+    printMatrix(e_vec, rows, cols);
+#endif
 
     // diagonal and subdiagonal init
     e_val       = new double[N];
@@ -80,7 +91,7 @@ int main(int argc, char** argv) {
     tred2(matrix, N, e_val, subdiagonal);
 
     // Apply tqli algorithm
-    // tqli(e_val, subdiagonal, N, e_vec);
+    tqli(e_val, subdiagonal, N, e_vec);
 
     for (double t = 0; t < T; t = t + dT) {  // Replace values in equation of X(t)
         for (int i = 0; i < N; i++) {        // Define X[0]
