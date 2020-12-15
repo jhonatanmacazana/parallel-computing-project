@@ -40,7 +40,7 @@ CXXFLAGS = -O3 -Wall
 
 .PHONY: all clean help
 
-FLAGS := -lm
+FLAGS := -lm -fopenmp
 
 #----------------------------------------------------------------------
 # Targets
@@ -62,15 +62,15 @@ seq-output: ${SOURCES_S}/main.cpp
 
 par: ${SOURCES_P}/main.cpp
 	@mkdir -p $(OUT_P)
-	g++ $(FLAGS) -fopenmp -g ${SOURCES_P}/main.cpp -o ${OUT_P}/${TARGET}
+	g++ $(FLAGS) -g ${SOURCES_P}/main.cpp -o ${OUT_P}/${TARGET}
 
 par-debug: ${SOURCES_P}/main.cpp
 	@mkdir -p $(OUT_P)
-	g++ $(FLAGS) -fopenmp -DDEBUG -g ${SOURCES_P}/main.cpp -o ${OUT_P}/${TARGET}
+	g++ $(FLAGS) -DDEBUG -g ${SOURCES_P}/main.cpp -o ${OUT_P}/${TARGET}
 
 par-output: ${SOURCES_P}/main.cpp
 	@mkdir -p $(OUT_P)
-	g++ $(FLAGS) -fopenmp -DEXPORT -g ${SOURCES_P}/main.cpp -o ${OUT_P}/${TARGET}
+	g++ $(FLAGS) -DEXPORT -g ${SOURCES_P}/main.cpp -o ${OUT_P}/${TARGET}
 
 
 run-seq: ${OUTPUT_S}
