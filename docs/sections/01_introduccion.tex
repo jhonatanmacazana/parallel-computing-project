@@ -1,6 +1,5 @@
 \section{Introducción}
 El análisis de multiples objetos acoplados es recurrente para distintas aplicaciones de control o mantenimiento. Su diseño parte de un modelo matemático que puede describir su comportamiento en el tiempo. Particularmente, el sistema de osciladores armónicos oscilatorios también pueden describirse apropiadamente por su frecuencia. A partir de su dinámica dada por la ecuación clásica \ref{eq:model}, se puede formular una solución análitica.
-
 \begin{equation}
 	\begin{split}
 		m \ddot x_i & = -D(x_i - x_{i+1}) - D(x_i - x_{i-1}) \\
@@ -10,7 +9,6 @@ El análisis de multiples objetos acoplados es recurrente para distintas aplicac
 \end{equation}
 
 De la ecuación \ref{eq:model}, $x_i$ representa a la desviación de la partícula $i$ de su posición de reposo que oscila acoplada entre $n$ partículas, $D$ es la constante de elasticidad de todos los resortes que unen cada partícula. Se plantea que los extremos de la cadena están fijos a $x_0 = x_n = $ constante, con las relaciones representadas en el sistema de ecuaciones \ref{eq:state-equation}
-
 \begin{equation}
 	\begin{split}
 		\sqrt{m} x_i(t) &= v_i \exp(i \omega t) 
