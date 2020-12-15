@@ -4,6 +4,8 @@
 #include <math.h>
 #include <omp.h>
 #include <iostream>
+#include <limits>
+
 
 /* ---------------------- Definition ---------------------- */
 #define SIGN(a, b) ((b) >= 0.0 ? fabs(a) : -fabs(a))
@@ -149,6 +151,7 @@ void tqli(double* d, double* e, int n, double** z) {
     double s, r, p, g, f, dd, c, b;
     volatile bool flag_inner_1, flag_inner_2, flag_inner_3;
     int max_iter = 100;
+    const double EPS = std::numeric_limits<double>::epsilon();
 
     for (i = 1; i < n; i++) {
         e[i - 1] = e[i];
@@ -156,7 +159,7 @@ void tqli(double* d, double* e, int n, double** z) {
 
     e[n - 1] = 0.0;
 
-    //#pragma omp parallel for default(shared) private(l, iter, d) reduction(-:d[:n])
+    //#pragma omp parallel for default (shared) private(l, iter, d) reduction(-:d[:n])
     for (l = 0; l < n; l++) {
         iter = 0;
         flag_inner_3 = true;
@@ -165,14 +168,20 @@ void tqli(double* d, double* e, int n, double** z) {
         for ( inner_3_iter = 0; inner_3_iter < max_iter; inner_3_iter++)
             if (flag_inner_3){
                 flag_inner_2 = true;
-                //#pragma omp parallel for shared(flag_inner_2, e)
+                //#pragma omp parallel for default(shared )
+                // for (m = l; m < n - 1; m++) {
+                //     if (flag_inner_2){
+                //         dd = fabs(d[m]) + fabs(d[m + 1]);
+                //         if ((double)(fabs(e[m]) + dd) == dd){
+                //             flag_inner_2 = false;
+                //         }
+                //     }
+                // }
+
                 for (m = l; m < n - 1; m++) {
-                    if (flag_inner_2){
-                        dd = fabs(d[m]) + fabs(d[m + 1]);
-                        if ((double)(fabs(e[m]) + dd) == dd) flag_inner_2 = false;
-                    }
+                    dd = abs(d[m]) + abs(d[m + 1]);
+                    if (abs(e[m]) <= EPS * dd) break;
                 }
-                //printf("%f ", z[0][0] );
 
                 if (m != l) {
                     if (iter++ == 30 || inner_3_iter > max_iter) {
@@ -187,9 +196,8 @@ void tqli(double* d, double* e, int n, double** z) {
                     p     = 0.0;
 
                     flag_inner_1 = true;
-                    //#pragma omp parallel for shared(e, d, flag_inner_1)// reduction(-:d[:n])
-                    printf("Holi");
 
+                    //#pragma omp parallel for shared(e, d, flag_inner_1)// reduction(-:d[:n])
                     for (i = m - 1; i >= l; i--) {
                         if (flag_inner_1) {
                             f        = s * e[i];
@@ -201,16 +209,16 @@ void tqli(double* d, double* e, int n, double** z) {
                                 e[m] = 0.0;
                                 flag_inner_1 = false;
                             }
-                            //#pragma omp barrier master
+                            //#pragma omp barrier
+                            
                             if (flag_inner_1) {
                                 s        = f / r;
                                 c        = g / r;
                                 g        = d[i + 1] - p;
                                 r        = (d[i] - g) * s + 2.0 * c * b;
                                 d[i + 1] = g + (p = s * r);
-                                printf("%f \n", d[i+1]);
                                 g        = c * r - b;
-                                //#pragma omp parallel for default(shared) private(k, f)  
+                                #pragma omp parallel for default (shared) private(k, f)  
                                 for (k = 0; k < n; k++) {
                                     f           = z[k][i + 1];
                                     z[k][i + 1] = s * z[k][i] + c * f;
@@ -219,10 +227,7 @@ void tqli(double* d, double* e, int n, double** z) {
                             }
                         }    
                     } /* end i-loop */
-                    //if (r == 0.0 && i >= l) continue;
                     if (!(r == 0.0 && i >= l)){
-                        printf("Breakpoint2");
-                        //printf(" %f %d >= %d ", r, i, l);
                         d[l] -= p;
                         e[l] = g;
                         e[m] = 0.0;
