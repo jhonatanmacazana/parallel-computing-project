@@ -218,7 +218,7 @@ void tqli(double* d, double* e, int n, double** z) {
                                 r        = (d[i] - g) * s + 2.0 * c * b;
                                 d[i + 1] = g + (p = s * r);
                                 g        = c * r - b;
-#pragma omp parallel for default(shared) private(k, f)
+                                // #pragma omp parallel for default(shared) private(k, f)
                                 for (k = 0; k < n; k++) {
                                     f           = z[k][i + 1];
                                     z[k][i + 1] = s * z[k][i] + c * f;

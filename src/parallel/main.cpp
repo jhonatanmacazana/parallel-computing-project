@@ -8,9 +8,12 @@
 // #define EXPORT  // shows results on CSV
 // #define DEBUG   // shows results on screen
 
-#define NUMBER_SPRINGS  99
+#define NUMBER_SPRINGS  9
 #define SPRING_CONSTANT 1.
 #define INITIAL_MASS    1.
+
+#define TIME_LIMIT 10.
+#define TIME_STEPS 0.01
 
 double** initializeMatrix(int rows, int cols);
 double* initializeMass(int size, double initial_m, double initial_n);
@@ -19,6 +22,10 @@ void printMatrix(double** matrix, int rows, int cols);
 
 void terminateVector(double* vector);
 void terminateMatrix(double** matrix, int size);
+
+#if NUMBER_SPRINGS % 2 == 0
+#    error NUMBER_SPRINGS must be odd
+#endif
 
 /* ---------------------- Main ---------------------- */
 int main(int argc, char** argv) {
@@ -35,8 +42,8 @@ int main(int argc, char** argv) {
     const double D  = 1.;  // Spring constant
     const double m0 = 1.;  // Initial mass
 
-    const double T  = 10.;   // time limit
-    const double dT = 0.01;  // time slots
+    const double T  = TIME_LIMIT;  // time limit
+    const double dT = TIME_STEPS;  // time slots
 
     double* e_val;        // vector diagonal
     double* subdiagonal;  // vector subdiagonal
@@ -75,6 +82,10 @@ int main(int argc, char** argv) {
         }
     }
 
+#ifdef DEBUG
+    printMatrix(e_vec, rows, cols);
+#endif
+
     // diagonal and subdiagonal init
     e_val       = new double[N];
     subdiagonal = new double[N - 1];
@@ -82,18 +93,12 @@ int main(int argc, char** argv) {
     // Pass tred2 algorithm. For evaluation, not necessarily
     tred2(matrix, N, e_val, subdiagonal);
 
-    // for (int i=0; i<N-1; i++)
-    //     printf("%f ", e_vec[i][i]);
-    // printf("\n");
+    // printMatrix(e_vec, rows, cols);
+
     // Apply tqli algorithm
     t1 = omp_get_wtime();
     tqli(e_val, subdiagonal, N, e_vec);
     t2 = omp_get_wtime();
-    // printMatrix(e_vec, rows, cols);
-
-    // for (int i=0; i<N-1; i++)
-    //     printf("%f ", e_vec[i][i]);
-
     for (double t = 0; t < T; t = t + dT) {  // Replace values in equation of X(t)
         for (int i = 0; i < N; i++) {        // Define X[0]
             X[i] = 10. * double(i);
