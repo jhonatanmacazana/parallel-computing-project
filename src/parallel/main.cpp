@@ -70,7 +70,6 @@ int main(int argc, char** argv) {
         }
     }
 
-    // printMatrix(e_vec, rows, cols);
 
     // diagonal and subdiagonal init
     e_val       = new double[N];
@@ -79,8 +78,16 @@ int main(int argc, char** argv) {
     // Pass tred2 algorithm. For evaluation, not necessarily
     tred2(matrix, N, e_val, subdiagonal);
 
+
+    // for (int i=0; i<N-1; i++)
+    //     printf("%f ", e_vec[i][i]);
+    // printf("\n");
     // Apply tqli algorithm
     tqli(e_val, subdiagonal, N, e_vec);
+    //printMatrix(e_vec, rows, cols);
+
+    // for (int i=0; i<N-1; i++)
+    //     printf("%f ", e_vec[i][i]);
 
     for (double t = 0; t < T; t = t + dT) {  // Replace values in equation of X(t)
         for (int i = 0; i < N; i++) {        // Define X[0]

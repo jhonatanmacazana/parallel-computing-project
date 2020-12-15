@@ -172,7 +172,6 @@ void tqli(double* d, double* e, int n, double** z) {
                 g = d[m] - d[l] + e[l] / (g + SIGN(r, g));
                 s = c = 1.0;
                 p     = 0.0;
-
                 for (i = m - 1; i >= l; i--) {
                     f        = s * e[i];
                     b        = c * e[i];
@@ -199,10 +198,9 @@ void tqli(double* d, double* e, int n, double** z) {
 
                 } /* end i-loop */
                 if (r == 0.0 && i >= l) continue;
-
                 d[l] -= p;
                 e[l] = g;
-                printf("%d ", m);
+                //printf("%d ", m);
                 e[m] = 0.0;
 
             } /* end if-loop for m != 1 */

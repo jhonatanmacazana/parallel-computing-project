@@ -161,21 +161,22 @@ void tqli(double* d, double* e, int n, double** z) {
         iter = 0;
         flag_inner_3 = true;
         //do {
-        #pragma omp parallel for shared(flag_inner_3, inner_3_iter, iter)
+        //#pragma omp parallel for shared(flag_inner_3, inner_3_iter, iter)
         for ( inner_3_iter = 0; inner_3_iter < max_iter; inner_3_iter++)
             if (flag_inner_3){
                 flag_inner_2 = true;
-                #pragma omp parallel for shared(flag_inner_2, e)
+                //#pragma omp parallel for shared(flag_inner_2, e)
                 for (m = l; m < n - 1; m++) {
                     if (flag_inner_2){
                         dd = fabs(d[m]) + fabs(d[m + 1]);
+                        if ((double)(fabs(e[m]) + dd) == dd) flag_inner_2 = false;
                     }
-                    if ((double)(fabs(e[m]) + dd) == dd) flag_inner_2 = false;
                 }
+                //printf("%f ", z[0][0] );
 
                 if (m != l) {
                     if (iter++ == 30 || inner_3_iter > max_iter) {
-                        // perror("\n\nToo many iterations in tqli.\n");
+                        //perror("\n\nToo many iterations in tqli.\n");
                         exit(0);
                     }
 
@@ -186,7 +187,9 @@ void tqli(double* d, double* e, int n, double** z) {
                     p     = 0.0;
 
                     flag_inner_1 = true;
-                    #pragma omp parallel for shared(e, d, flag_inner_1)// reduction(-:d[:n])
+                    //#pragma omp parallel for shared(e, d, flag_inner_1)// reduction(-:d[:n])
+                    printf("Holi");
+
                     for (i = m - 1; i >= l; i--) {
                         if (flag_inner_1) {
                             f        = s * e[i];
@@ -198,24 +201,28 @@ void tqli(double* d, double* e, int n, double** z) {
                                 e[m] = 0.0;
                                 flag_inner_1 = false;
                             }
-
-                            s        = f / r;
-                            c        = g / r;
-                            g        = d[i + 1] - p;
-                            r        = (d[i] - g) * s + 2.0 * c * b;
-                            d[i + 1] = g + (p = s * r);
-                            g        = c * r - b;
-                            
-                            #pragma omp parallel for default(shared) private(k, f)  
-                            for (k = 0; k < n; k++) {
-                                f           = z[k][i + 1];
-                                z[k][i + 1] = s * z[k][i] + c * f;
-                                z[k][i]     = c * z[k][i] - s * f;
-                            } /* end k-loop */
-                        }
+                            //#pragma omp barrier master
+                            if (flag_inner_1) {
+                                s        = f / r;
+                                c        = g / r;
+                                g        = d[i + 1] - p;
+                                r        = (d[i] - g) * s + 2.0 * c * b;
+                                d[i + 1] = g + (p = s * r);
+                                printf("%f \n", d[i+1]);
+                                g        = c * r - b;
+                                //#pragma omp parallel for default(shared) private(k, f)  
+                                for (k = 0; k < n; k++) {
+                                    f           = z[k][i + 1];
+                                    z[k][i + 1] = s * z[k][i] + c * f;
+                                    z[k][i]     = c * z[k][i] - s * f;
+                                } /* end k-loop */
+                            }
+                        }    
                     } /* end i-loop */
                     //if (r == 0.0 && i >= l) continue;
                     if (!(r == 0.0 && i >= l)){
+                        printf("Breakpoint2");
+                        //printf(" %f %d >= %d ", r, i, l);
                         d[l] -= p;
                         e[l] = g;
                         e[m] = 0.0;
