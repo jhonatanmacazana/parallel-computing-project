@@ -30,7 +30,7 @@ Cabe resaltar que convenientemente, se eligen los parámetros del sistema para q
 
 \subsection{Desempeño en tiempo}
 Para medir el desempeño, se corrieron los códigos múltiples veces hasta 10, y así obtener un valor promedio respecto a los procesadores.
-En la figura \ref{fig:local_time_p}, se muestra el desempeño en tiempo. Notese que para distintos procesadores, el tiempo permanece siendo el mismo. Se justifica este comportamiento debido a que la sección paralela solo posee pocas operaciones y OpenMP implicitamente añade ciertos tiempos cuando se usa los statements pragma.
+Se utilizaron dos dispositivos para medir el desempeño. Una pc local de 8 cores AMD Ryzen 5 3400G de 3.69GHz y 22 Gb de RAM. También se usó un servidor customizable de 8 Gb de RAM, y 4 cores de procesadores de 2.2 GHz. En las figuras \ref{fig:local_time_p} y \ref{fig:server_time_p} , se muestran el desempeño en tiempo. Notese que para distintos procesadores, el tiempo permanece siendo el mismo. Se justifica este comportamiento debido a que la sección paralela solo posee pocas operaciones y OpenMP implicitamente añade ciertos tiempos cuando se usa los statements pragma. Se justifica que los tiempos en el servidor sean menores al de la pc local, pues este servidor está dedicado a la tarea, mientras que la pc usa sus recursos para multiples procesos.
 
 \begin{figure}
 	\centering
