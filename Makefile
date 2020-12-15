@@ -75,11 +75,11 @@ par-output: ${SOURCES_P}/main.cpp
 
 run-seq: ${OUTPUT_S}
 	@$<
-	@mv results.csv tests/results-seq.csv
+	@ [ -e results.csv ] && mv results.csv tests/results-seq.csv || true
 
 run-par: ${OUTPUT_P}
 	@$<
-	@mv results.csv tests/results-par.csv
+	@ [ -e results.csv ] && mv results.csv tests/results-par.csv || true
 
 
 clean:
