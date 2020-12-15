@@ -4,15 +4,15 @@
 Un método de resolución es mediante un arreglo matricial. Considerese el sistema de ecuaciones mostrado en \ref{eq:state-equation}, se puede formar una matriz tridiagonal $M$ definida como en \ref{eq:matrix-def}, donde $\delta$ se define como $\delta_{i,j} = 1, \text{si i = j}$.
 
 \begin{equation}
-    M_{ij} = \frac{D}{\sqrt{m_i m_j}} (2 \delta_{ij} - \delta_{i, j+1} - \delta_{i, j-1}) 
-    \label{eq:matrix-def}
+	M_{ij} = \frac{D}{\sqrt{m_i m_j}} (2 \delta_{ij} - \delta_{i, j+1} - \delta_{i, j-1}) 
+	\label{eq:matrix-def}
 \end{equation}
 
 Esta representación de arreglo es plateada como alternativa de solución en la descripción del problema para este proyecto. En ese sentido, se conoce que el cálculo de las vibraciones del sistema se puede reducir al cálculo de los valores propios y vectores propios de la matriz tridiagonal. Se asume que dado el arreglo $M$, sus valores propios ($\lambda_i)$ y vectores propios $v_i$ pueden reemplazarse directamente en \ref{eq:state-equation}. Sea la ecuación \ref{eq:analytical-solution} la solución del sistema a partir del uso de los valores y vectores propios de $M$.
 
 \begin{equation}
-    y_{i} = \sum^{n}_{i=0} v_i \cos(\lambda_i t ) + v_i \sin(\lambda_i t )  
-    \label{eq:analytical-solution}
+	y_{i} = \sum^{n}_{i=0} v_i \cos(\lambda_i t ) + v_i \sin(\lambda_i t )  
+	\label{eq:analytical-solution}
 \end{equation}
 
 \subsection{Implementación}
