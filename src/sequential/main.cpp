@@ -8,7 +8,7 @@
 // #define EXPORT  // shows results on CSV
 // #define DEBUG   // shows results on screen
 
-#define NUMBER_SPRINGS  9
+#define NUMBER_SPRINGS  99
 #define SPRING_CONSTANT 1.
 #define INITIAL_MASS    1.
 
@@ -38,7 +38,7 @@ int main(int argc, char** argv) {
     const int rows = N;
     const int cols = N;
 
-    const int n0    = 10;  // Initial mass constant
+    const int n0    = 60;  // Initial mass constant
     const double D  = 1.;  // Spring constant
     const double m0 = 1.;  // Initial mass
 

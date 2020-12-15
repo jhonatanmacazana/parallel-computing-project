@@ -15,7 +15,9 @@ Esta representación de arreglo es plateada como alternativa de solución en la 
 	\label{eq:analytical-solution}
 \end{equation}
 
-\subsection{Implementación}
+\subsection{Código}
+\subsubsection{Código general}
+
 Para la obtención de los valores y vectores propios, se usa el método Tridiagonal Quadratic Linear Implicit (tqli). El algoritmo funciona para una matriz simétrica tridiagonal, por lo que propone utilizar un método de tridiagonalización utilizando un algoritmo tred2. Sin embargo, particularmente el modelo definido $M$ es simétrica tridiagonal. Por ello, se corrieron ambas opciones que considera el uso de tred2. Por conveniencia y seguir lo recomendado por la funcion, se utilizo tred2.
 
 El codigo implementado sigue el siguiente pseudo codigo mostrado. 
@@ -29,11 +31,18 @@ El codigo implementado sigue el siguiente pseudo codigo mostrado.
 		X = X0 + y(aval, avect, t);
 \end{verbatim}
 
-Las variaciones realizadas y es donde se midio el desempeño del codigo es para la función tqli, que además de haber sido modificado del libro, se ha paralelizado mediante OpenMP
+Las variaciones realizadas y es donde se midio el desempeño del codigo es para la función tqli, que además de haber sido modificado del libro, se ha paralelizado mediante OpenMP.
 
-
-\subsubsection{Código secuencial}
 
 \subsubsection{Código paralelo}
-Para
-Pseduo code. Cluster
+Particularmente para la implementación en paralelo, se tuvo que modificar el código original. OpenMP no es compatible para statements break o while, los cuales aparecían varias veces en el código. Por lo tanto, estas secciones se modificaron para que puedan utilizarse solo for y if statements. Se registró cuáles eran las secciones no paralelizables y las que tenían mayor recurrencia en el código. Converientemente, la sección principal más recurrente, es compatible con paralelismo mediante el statement \#pragma-for. 
+
+Respecto al resto del código, cabe resaltar que gran parte del código se basa en condicionales de forma break que interrupen el código. Además, hay recursividad en algunas variables, lo cual no puede ser manejado adecuadamente con OpenMP, a menos que se modifique la forma del algoritmo, por lo que escapó del objetivo a realizarse. Pese a ello, se resalta nuevamente que la sección del código con más recurrencia sí ha sido paralelizado.
+
+\subsubsection{Implementación}
+El código realizado siguio el control de versiones \text{git} y se muestra en el siguiente repositorio en Github \textit{https://github.com/jhonatanmacazana/parallel-computing-project}. Notese el historial y la linea de commits realizados conjunto los releases.
+
+Para un uso más simple y rápido, se generaron archivos \text{Makefile} con los cuales se puede definir mediante el uso de distintos flags que tipo de se desee hacer: debugging, guardar resultados, etc. Para mayor información revisar código en el repositorio.
+
+Se plantearon dos tipos de experimentos para revisar el comportamiento del sistema. Para el primer caso, se plantea revisar el comportamiento por un tiempo $T = 10s$, para un $m_i = 1 kg$, excepto para un $n_0 = 30, 60$, donde $m_{n_0} = 100 kg$. El comportamiento en tiempo, se analizará posteriormente. Para el segundo lugar, se correrá el código para medir su desempeño. Se plantea correr 10 veces el código para $n={59,69,79,89,99}$. Para el caso en paralelo, se correrá el código para $p={2,4,6,8}$. Todos estos casos se correrán de manera local, en el cluster proporcionado por UTEC y en un servidor propio para benchmarking.
+
