@@ -8,7 +8,7 @@
 // #define EXPORT  // shows results on CSV
 // #define DEBUG   // shows results on screen
 
-#define NUMBER_SPRINGS  9
+#define NUMBER_SPRINGS  99
 #define SPRING_CONSTANT 1.
 #define INITIAL_MASS    1.
 
