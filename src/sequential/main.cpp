@@ -5,7 +5,7 @@
 #include "omp.h"
 #include "utils.hpp"
 
-#define EXPORT  // shows results on CSV
+// #define EXPORT  // shows results on CSV
 // #define DEBUG   // shows results on screen
 
 #define NUMBER_SPRINGS  9

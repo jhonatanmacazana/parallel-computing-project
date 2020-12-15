@@ -46,7 +46,7 @@ FLAGS := -lm -fopenmp
 # Targets
 #----------------------------------------------------------------------
 
-all: seq
+all: seq par
 
 seq: ${SOURCES_S}/main.cpp
 	@mkdir -p $(OUT_S)
