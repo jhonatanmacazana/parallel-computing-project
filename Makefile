@@ -52,10 +52,6 @@ seq: ${SOURCES_S}/main.cpp
 	@mkdir -p $(OUT_S)
 	g++ $(FLAGS) -g ${SOURCES_S}/main.cpp -o ${OUT_S}/${TARGET}
 
-seq-test:
-	@mkdir -p $(OUT_S)
-	g++ $(FLAGS) -g ${SOURCES_S}/main.cpp -o ${OUT_S}/${TARGET}
-
 seq-debug: ${SOURCES_S}/main.cpp
 	@mkdir -p $(OUT_S)
 	g++ $(FLAGS) -DDEBUG -g ${SOURCES_S}/main.cpp -o ${OUT_S}/${TARGET}
@@ -63,6 +59,18 @@ seq-debug: ${SOURCES_S}/main.cpp
 seq-output: ${SOURCES_S}/main.cpp
 	@mkdir -p $(OUT_S)
 	g++ $(FLAGS) -DEXPORT -g ${SOURCES_S}/main.cpp -o ${OUT_S}/${TARGET}
+
+par: ${SOURCES_P}/main.cpp
+	@mkdir -p $(OUT_P)
+	g++ $(FLAGS) -fopenmp -g ${SOURCES_P}/main.cpp -o ${OUT_P}/${TARGET}
+
+par-debug: ${SOURCES_P}/main.cpp
+	@mkdir -p $(OUT_P)
+	g++ $(FLAGS) -fopenmp -DDEBUG -g ${SOURCES_P}/main.cpp -o ${OUT_P}/${TARGET}
+
+par-output: ${SOURCES_P}/main.cpp
+	@mkdir -p $(OUT_P)
+	g++ $(FLAGS) -fopenmp -DEXPORT -g ${SOURCES_P}/main.cpp -o ${OUT_P}/${TARGET}
 
 
 run-seq: ${OUTPUT_S}
