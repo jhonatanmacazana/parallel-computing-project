@@ -8,7 +8,7 @@
 // #define EXPORT  // shows results on CSV
 // #define DEBUG   // shows results on screen
 
-#define NUM_ITERATIONS 10
+#define NUM_ITERATIONS 3
 
 #define NUMBER_SPRINGS  99
 #define SPRING_CONSTANT 1.
@@ -62,10 +62,10 @@ int main(int argc, char** argv) {
 #endif
 
     for (int it = 0; it < NUM_ITERATIONS; it++) {
-        for (int numThreads = 2; numThreads <= 8; numThreads += 2) {
+        for (int numThreads = 4; numThreads <= 16; numThreads += 4) {
             omp_set_num_threads(numThreads);
 
-            for (int N = 49; N < 100; N += 10) {
+            for (int N = 99; N < 1000; N += 100) {
                 int rows = N;
                 int cols = N;
 

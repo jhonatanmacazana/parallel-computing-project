@@ -8,17 +8,18 @@
 // #define EXPORT  // shows results on CSV
 // #define DEBUG   // shows results on screen
 
-#define NUMBER_SPRINGS  99
+#define NUMBER_SPRINGS  5
 #define SPRING_CONSTANT 1.
 #define INITIAL_MASS    1.
 
 #define TIME_LIMIT 10.
-#define TIME_STEPS 0.01
+#define TIME_STEPS 1
 
 double** initializeMatrix(int rows, int cols);
 double* initializeMass(int size, double initial_m, double initial_n);
 
 void printMatrix(double** matrix, int rows, int cols);
+void printVector(double* vector, int size);
 
 void terminateVector(double* vector);
 void terminateMatrix(double** matrix, int size);
@@ -82,13 +83,11 @@ int main(int argc, char** argv) {
         }
     }
 
-#ifdef DEBUG
-    printMatrix(e_vec, rows, cols);
-#endif
-
     // diagonal and subdiagonal init
     e_val       = new double[N];
     subdiagonal = new double[N - 1];
+
+    t1 = omp_get_wtime();
 
     // Pass tred2 algorithm. For evaluation, not necessarily
     tred2(matrix, N, e_val, subdiagonal);
@@ -96,9 +95,13 @@ int main(int argc, char** argv) {
     // printMatrix(e_vec, rows, cols);
 
     // Apply tqli algorithm
-    t1 = omp_get_wtime();
     tqli(e_val, subdiagonal, N, e_vec);
     t2 = omp_get_wtime();
+
+#ifdef DEBUG
+    printMatrix(e_vec, rows, cols);
+#endif
+
     for (double t = 0; t < T; t = t + dT) {  // Replace values in equation of X(t)
         for (int i = 0; i < N; i++) {        // Define X[0]
             X[i] = 10. * double(i);
@@ -113,10 +116,15 @@ int main(int argc, char** argv) {
             fprintf(fout, "%lf,", X[i]);
 #endif
         }
+        printVector(X, rows);
 #ifdef EXPORT
         fprintf(fout, "\n");
 #endif
     }
+
+#ifdef DEBUG
+    printMatrix(e_vec, rows, cols);
+#endif
 
     printf("t: %9.6f ms\n", (t2 - t1) * 1000);
 
@@ -159,4 +167,13 @@ void printMatrix(double** matrix, int rows, int cols) {
         }
         printf("\n");
     }
+}
+
+void printVector(double* vector, int size) {
+    // printf("Vector \n");
+
+    for (int i = 0; i < size; i++) {
+        printf("%4.2f ", vector[i]);
+    }
+    printf("\n");
 }
