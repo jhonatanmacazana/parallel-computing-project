@@ -8,7 +8,7 @@
 // #define EXPORT  // shows results on CSV
 // #define DEBUG   // shows results on screen
 
-#define NUMBER_SPRINGS  5
+#define NUMBER_SPRINGS  999
 #define SPRING_CONSTANT 1.
 #define INITIAL_MASS    1.
 
@@ -69,6 +69,7 @@ int main(int argc, char** argv) {
     m      = initializeMass(N, m0, n0);
     matrix = initializeMatrix(rows, cols);
 
+#pragma omp parallel for
     for (int i = 0; i < rows; ++i) {
         for (int j = 0; j < cols; ++j) {
             matrix[i][j] =
@@ -79,6 +80,7 @@ int main(int argc, char** argv) {
     // z init
     e_vec = initializeMatrix(rows, cols);
 
+#pragma omp parallel for
     for (int i = 0; i < rows; ++i) {
         for (int j = 0; j < cols; ++j) {
             e_vec[i][j] = delta(i, j);
@@ -105,10 +107,12 @@ int main(int argc, char** argv) {
 #endif
 
     for (double t = 0; t < T; t = t + dT) {  // Replace values in equation of X(t)
-        for (int i = 0; i < N; i++) {        // Define X[0]
+#pragma omp parallel for
+        for (int i = 0; i < N; i++) {  // Define X[0]
             X[i] = 10. * double(i);
         }
 
+#pragma omp parallel for
         for (int i = 0; i < rows; i++) {
             for (int j = 0; j < cols; j++) {
                 X[i] += e_vec[i][j] * cos(e_val[j] * t) + e_vec[i][j] * sin(e_val[j] * t);
