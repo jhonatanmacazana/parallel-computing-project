@@ -156,7 +156,7 @@ void tqli(double* d, double* e, int n, double** z) {
     int max_iter     = 100;
     const double EPS = std::numeric_limits<double>::epsilon();
 
-#pragma omp parallel for private(i) schedule(dynamic)
+    // #pragma omp parallel for private(i) schedule(dynamic)
     for (i = 1; i < n; i++) {
         e[i - 1] = e[i];
     }
