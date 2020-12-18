@@ -18,15 +18,7 @@ Esta representación de arreglo es plateada como alternativa de solución en la 
 \subsection{Código}
 \subsubsection{Código general}
 
-Para la obtención de los valores y vectores propios, se usa el método Tridiagonal Quadratic Linear Implicit (tqli). El algoritmo funciona para una matriz simétrica tridiagonal, por lo que propone utilizar un método de tridiagonalización utilizando un algoritmo tred2. Sin embargo, particularmente el modelo definido $M$ es simétrica tridiagonal. Por ello, se corrieron ambas opciones que considera el uso de tred2. Por conveniencia y seguir lo recomendado por la funcion, se utilizo tred2. Estas recomendaciones fueron extraídas del libro Numerical Recipes \cite{press2007numerical}. Esta función se muestra en \ref{fig:tqli_original}. Como se puede apreciar, esta función no puede ser paralelizada a simple vista, por la presencia de bucles \textbf{while} y declaraciones \textbf{break}. 
-
-\begin{figure}
-	\centering
-	\includegraphics[width=0.45\textwidth]{tqli_org.png}
-	\caption{Función TQLI original.}
-	\label{fig:tqli_original}
-\end{figure}
-
+Para la obtención de los valores y vectores propios, se usa el método Tridiagonal Quadratic Linear Implicit (tqli). El algoritmo funciona para una matriz simétrica tridiagonal, por lo que propone utilizar un método de tridiagonalización utilizando un algoritmo tred2. Sin embargo, particularmente el modelo definido $M$ es simétrica tridiagonal. Por ello, se corrieron ambas opciones que considera el uso de tred2. Por conveniencia y seguir lo recomendado por la funcion, se utilizo tred2. Estas recomendaciones fueron extraídas del libro Numerical Recipes \cite{press2007numerical}. Como se puede apreciar, esta función no puede ser paralelizada a simple vista, por la presencia de bucles \textbf{while} y declaraciones \textbf{break}. 
 
 El codigo implementado sigue el siguiente pseudocodigo mostrado en la Figura \ref{fig:pseudo}. 
 
@@ -52,16 +44,6 @@ Las variaciones realizadas y es donde se midio el desempeño del codigo es para 
 
 \subsubsection{Código paralelo}
 Particularmente para la implementación en paralelo, se tuvo que modificar el código original. OpenMP no es compatible para statements break o while, los cuales aparecían varias veces en el código. Por lo tanto, estas secciones se modificaron para que puedan utilizarse solo for y if statements. Se registró cuáles eran las secciones no paralelizables y las que tenían mayor recurrencia en el código. Converientemente, la sección principal más recurrente, es compatible con paralelismo mediante el statement \#pragma-for. 
-
-
-Es por ello, que se realizaron modificaciones, utilizando banderas en lugar de declaraciones \textbf{break} y cambiando el while por un \textbf{for}. Estas modificaciones se pueden visualizar en la figura \ref{fig:tqli_modificada}.
-
-\begin{figure}
-	\centering
-	\includegraphics[width=0.45\textwidth]{tqli_mod.png}
-	\caption{Función TQLI modificada.}
-	\label{fig:tqli_modificada}
-\end{figure}
 
 Respecto al resto del código, cabe resaltar que gran parte del código se basa en condicionales de forma break que interrupen el código. Además, hay recursividad en algunas variables, lo cual no puede ser manejado adecuadamente con OpenMP, a menos que se modifique la forma del algoritmo, por lo que escapó del objetivo a realizarse. Estos segmentos de código pueden apreciarse en las Figuras \ref{fig:code1}, \ref{fig:code2}, \ref{fig:code3}, \ref{fig:code4}. Pese a ello, se resalta nuevamente que la sección del código con más recurrencia sí ha sido paralelizado.
 
@@ -98,7 +80,7 @@ Respecto al resto del código, cabe resaltar que gran parte del código se basa 
 Estos fragmentos de código presentan diversos factores que no permiten una paralelización normal con OpenMP, tal como la comunicación necesaria con la memoria adyacente para cada iteración, ya se adelante a otras con un índice +1 o -1.
 
 \subsubsection{Implementación}
-El código realizado siguio el control de versiones \text{git} y se muestra en el siguiente repositorio en Github \textit{https://github.com/jhonatanmacazana/parallel-computing-project}. Notese el historial y la linea de commits realizados conjunto los releases.
+El código realizado sigue el control de versiones \text{git} y se muestra en el siguiente repositorio en Github \textit{https://github.com/jhonatanmacazana/parallel-computing-project}. Notese el historial y la linea de commits realizados conjunto los releases.
 
 Se plantearon dos tipos de experimentos para revisar el comportamiento del sistema. Para el primer caso, se plantea revisar el comportamiento por un tiempo $T = 10s$, para un $m_i = 1 kg$, excepto para un $n_0 = 30, 60$, donde $m_{n_0} = 100 kg$. El comportamiento en tiempo, se analizará posteriormente. Para el segundo lugar, se correrá el código para medir su desempeño. Se plantea correr 10 veces el código para $n={59,69,79,89,99}$. Para el caso en paralelo, se correrá el código para $p={2,4,6,8}$. Todos estos casos se correrán de manera local, en el cluster proporcionado por UTEC y en un servidor propio para benchmarking.
 
@@ -106,4 +88,4 @@ Para agilizar el desarrollo y poder compilar en diferentes entornos de manera si
 
 Es así que con estos comandos disponibles, se creó un archivo para facilitar la generación de tests, el cual es el archivo \textit{testLocal.sh}. Este archivo permite compilar, ejecutar, y limpiar los archivos de manera correcta.
 
-Por último, para el cálculo de las operaciones realizadas se utilizó el software \textit{perf}, el cual se utilizó en el servidor remoto con 8GB RAM y 4 núcleos, cada núcleo siendo del modelo Intel(R) Xeon(R) CPU E5-2650 v4 @ 2.20GHz. 
+Por último, para el cálculo de las operaciones realizadas se utilizó el software \textit{perf}, el cual se utilizó en el servidor remoto con 8 GB RAM (7.78) y 4 núcleos, cada núcleo siendo del modelo Intel(R) Xeon(R) Gold 6140 CPU @ 2.30GHz. 
