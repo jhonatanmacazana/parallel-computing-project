@@ -13,7 +13,7 @@
 #define INITIAL_MASS    1.
 
 #define TIME_LIMIT 10.
-#define TIME_STEPS 1
+#define TIME_STEPS 0.1
 
 double** initializeMatrix(int rows, int cols);
 double* initializeMass(int size, double initial_m, double initial_n);
@@ -55,6 +55,8 @@ int main(int argc, char** argv) {
 
     double t1, t2, t3, t4;
 
+    int i, j;
+
 #ifdef EXPORT
     fout = fopen("results.csv", "w");
     if (fout == NULL) {
@@ -69,9 +71,10 @@ int main(int argc, char** argv) {
     m      = initializeMass(N, m0, n0);
     matrix = initializeMatrix(rows, cols);
 
-#pragma omp parallel for
-    for (int i = 0; i < rows; ++i) {
-        for (int j = 0; j < cols; ++j) {
+#pragma omp parallel for default (shared) private(i)
+    for ( i = 0; i < rows; ++i) {
+        #pragma omp parallel for default (shared) private(j)
+        for ( j = 0; j < cols; ++j) {
             matrix[i][j] =
                 D * (2 * delta(i, j) - delta(i, j + 1) - delta(i, j - 1)) / sqrt(m[i] * m[j]);
         }
@@ -80,9 +83,10 @@ int main(int argc, char** argv) {
     // z init
     e_vec = initializeMatrix(rows, cols);
 
-#pragma omp parallel for
-    for (int i = 0; i < rows; ++i) {
-        for (int j = 0; j < cols; ++j) {
+#pragma omp parallel for default (shared) private(i)
+    for ( i = 0; i < rows; ++i) {
+        #pragma omp parallel for default (shared) private(j)
+        for ( j = 0; j < cols; ++j) {
             e_vec[i][j] = delta(i, j);
         }
     }
@@ -107,22 +111,26 @@ int main(int argc, char** argv) {
 #endif
 
     for (double t = 0; t < T; t = t + dT) {  // Replace values in equation of X(t)
-#pragma omp parallel for
-        for (int i = 0; i < N; i++) {  // Define X[0]
+        #pragma omp parallel for default(shared) private(i)
+        for (i = 0; i < N; i++) {  // Define X[0]
             X[i] = 10. * double(i);
         }
 
-#pragma omp parallel for
-        for (int i = 0; i < rows; i++) {
-            for (int j = 0; j < cols; j++) {
-                X[i] += e_vec[i][j] * cos(e_val[j] * t) + e_vec[i][j] * sin(e_val[j] * t);
+        //#pragma omp parallel for default(shared)// private(t)
+        for (i = 0; i < rows; i++) {
+            double res = 0;
+            #pragma omp parallel for default(shared) private(j) reduction (+:res) 
+            for (j = 0; j < cols; j++) {
+                //printf("%d, %d, %f, %d \n", i, j, t, omp_get_thread_num());
+                res += e_vec[i][j] * cos(e_val[j] * t) + e_vec[i][j] * sin(e_val[j] * t);
             }
+            X[i] += res;
 
 #ifdef EXPORT
             fprintf(fout, "%lf,", X[i]);
 #endif
         }
-        printVector(X, rows);
+        //printVector(X, rows);
 #ifdef EXPORT
         fprintf(fout, "\n");
 #endif
