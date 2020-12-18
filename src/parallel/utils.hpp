@@ -72,6 +72,7 @@ void tred2(double** a, int n, double* d, double* e) {
     int l, k, j, i;
     double scale, hh, h, g, f;
 
+    // #pragma omp parallel for private(l)
     for (i = n - 1; i > 0; i--) {
         l = i - 1;
         h = scale = 0.0;
@@ -103,6 +104,7 @@ void tred2(double** a, int n, double* d, double* e) {
                 for (j = 0; j < l + 1; j++) {
                     f    = a[i][j];
                     e[j] = g = e[j] - hh * f;
+
                     for (k = 0; k < j + 1; k++) {
                         a[j][k] -= (f * e[k] + g * a[i][k]);
                     }
@@ -130,6 +132,7 @@ void tred2(double** a, int n, double* d, double* e) {
         d[i]    = a[i][i];
         a[i][i] = 1.0;
 
+        // #pragma omp parallel for private(j)
         for (j = 0; j < l; j++) {
             a[j][i] = a[i][j] = 0.0;
         }
@@ -153,6 +156,7 @@ void tqli(double* d, double* e, int n, double** z) {
     int max_iter     = 100;
     const double EPS = std::numeric_limits<double>::epsilon();
 
+    // #pragma omp parallel for private(i) schedule(dynamic)
     for (i = 1; i < n; i++) {
         e[i - 1] = e[i];
     }
@@ -160,6 +164,7 @@ void tqli(double* d, double* e, int n, double** z) {
     e[n - 1] = 0.0;
 
     //#pragma omp parallel for default (shared) private(l, iter, d) reduction(-:d[:n])
+    // #pragma omp parallel for private(l)  // reduction(- : d[:n])
     for (l = 0; l < n; l++) {
         iter         = 0;
         flag_inner_3 = true;
@@ -197,7 +202,7 @@ void tqli(double* d, double* e, int n, double** z) {
 
                     flag_inner_1 = true;
 
-                    //#pragma omp parallel for shared(e, d, flag_inner_1)// reduction(-:d[:n])
+                    // #pragma omp parallel for  // reduction(-:d[:n])
                     for (i = m - 1; i >= l; i--) {
                         if (flag_inner_1) {
                             f        = s * e[i];
@@ -218,7 +223,7 @@ void tqli(double* d, double* e, int n, double** z) {
                                 r        = (d[i] - g) * s + 2.0 * c * b;
                                 d[i + 1] = g + (p = s * r);
                                 g        = c * r - b;
-                                // #pragma omp parallel for default(shared) private(k, f)
+#pragma omp parallel for private(f)
                                 for (k = 0; k < n; k++) {
                                     f           = z[k][i + 1];
                                     z[k][i + 1] = s * z[k][i] + c * f;
