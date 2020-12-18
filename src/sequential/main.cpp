@@ -53,7 +53,7 @@ int main(int argc, char** argv) {
     double** e_vec;       // Matrix temporal
     double** matrix;      // Matrix to calculate
 
-    double t1, t2;
+    double t1, t2, t3, t4;
 
 #ifdef EXPORT
     fout = fopen("results.csv", "w");
@@ -62,6 +62,8 @@ int main(int argc, char** argv) {
         exit(-1);
     }
 #endif
+
+    t1 = omp_get_wtime();
 
     X      = new double[N];
     m      = initializeMass(N, m0, n0);
@@ -87,7 +89,7 @@ int main(int argc, char** argv) {
     e_val       = new double[N];
     subdiagonal = new double[N - 1];
 
-    t1 = omp_get_wtime();
+    t2 = omp_get_wtime();
 
     // Pass tred2 algorithm. For evaluation, not necessarily
     tred2(matrix, N, e_val, subdiagonal);
@@ -96,7 +98,7 @@ int main(int argc, char** argv) {
 
     // Apply tqli algorithm
     tqli(e_val, subdiagonal, N, e_vec);
-    t2 = omp_get_wtime();
+    t3 = omp_get_wtime();
 
 #ifdef DEBUG
     printMatrix(e_vec, rows, cols);
@@ -126,9 +128,16 @@ int main(int argc, char** argv) {
     printMatrix(e_vec, rows, cols);
 #endif
 
-    printf("t: %9.6f ms\n", (t2 - t1) * 1000);
+    t4 = omp_get_wtime();
+    printf("%9.6f, %9.6f, %9.6f, %9.6f\n", (t2 - t1) * 1000, (t3 - t2) * 1000, (t4 - t3) * 1000,
+           (t4 - t1) * 1000);
 
     terminateMatrix(e_vec, N);
+    terminateMatrix(matrix, N);
+    terminateVector(e_val);
+    terminateVector(subdiagonal);
+    terminateVector(m);
+    terminateVector(X);
     return 0;
 }
 
@@ -170,8 +179,6 @@ void printMatrix(double** matrix, int rows, int cols) {
 }
 
 void printVector(double* vector, int size) {
-    // printf("Vector \n");
-
     for (int i = 0; i < size; i++) {
         printf("%4.2f ", vector[i]);
     }
