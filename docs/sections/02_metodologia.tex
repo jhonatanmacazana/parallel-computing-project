@@ -28,16 +28,24 @@ Para la obtención de los valores y vectores propios, se usa el método Tridiago
 \end{figure}
 
 
-El codigo implementado sigue el siguiente pseudo codigo mostrado. 
-\begin{verbatim}
-	m = initializeMass(n, m0, n0);
-	matrix = initializeMatrix(n, n);
-	diag, subdiag <- tred2(matrix, n);
-	aval, avect <- tqli(diag, subdiag);
-	// Simulation
-	for t in 0:dT:T
-		X = X0 + y(aval, avect, t);
-\end{verbatim}
+El codigo implementado sigue el siguiente pseudocodigo mostrado en la Figura \ref{fig:pseudo}. 
+
+\begin{figure}[htbp]
+	\centering
+	\includegraphics[width=0.45\textwidth]{pseudocode.png}
+	\caption{Pseudocódigo del cóidigo implementado.}
+	\label{fig:pseudo}
+\end{figure}
+
+% \begin{verbatim}
+% 	m = initializeMass(n, m0, n0);
+% 	matrix = initializeMatrix(n, n);
+% 	diag, subdiag <- tred2(matrix, n);
+% 	aval, avect <- tqli(diag, subdiag);
+% 	// Simulation
+% 	for t in 0:dT:T
+% 		X = X0 + y(aval, avect, t);
+% \end{verbatim}
 
 Las variaciones realizadas y es donde se midio el desempeño del codigo es para la función tqli, que además de haber sido modificado del libro, se ha paralelizado mediante OpenMP \cite{al2017parallel}.
 
@@ -86,6 +94,8 @@ Respecto al resto del código, cabe resaltar que gran parte del código se basa 
 	\caption{Fragmento de código 4.}
 	\label{fig:code4}
 \end{figure}
+
+Estos fragmentos de código presentan diversos factores que no permiten una paralelización normal con OpenMP, tal como la comunicación necesaria con la memoria adyacente para cada iteración, ya se adelante a otras con un índice +1 o -1.
 
 \subsubsection{Implementación}
 El código realizado siguio el control de versiones \text{git} y se muestra en el siguiente repositorio en Github \textit{https://github.com/jhonatanmacazana/parallel-computing-project}. Notese el historial y la linea de commits realizados conjunto los releases.
