@@ -8,6 +8,8 @@
 // #define EXPORT  // shows results on CSV
 // #define DEBUG   // shows results on screen
 
+#define NUM_ITERATIONS 3
+
 #define NUMBER_SPRINGS  999
 #define SPRING_CONSTANT 1.
 #define INITIAL_MASS    1.
@@ -34,10 +36,7 @@ int main(int argc, char** argv) {
     FILE* fout;
 #endif
 
-    const int N = NUMBER_SPRINGS;
-
-    const int rows = N;
-    const int cols = N;
+    // const int N = NUMBER_SPRINGS;
 
     const int n0    = 10;  // Initial mass constant
     const double D  = 1.;  // Spring constant
@@ -65,91 +64,103 @@ int main(int argc, char** argv) {
     }
 #endif
 
-    t1 = omp_get_wtime();
+    for (int it = 0; it < NUM_ITERATIONS; it++) {
+        for (int numThreads = 4; numThreads <= 16; numThreads += 4) {
+            omp_set_num_threads(numThreads);
 
-    X      = new double[N];
-    m      = initializeMass(N, m0, n0);
-    matrix = initializeMatrix(rows, cols);
+            for (int N = 99; N < 1000; N += 100) {
+                int rows = N;
+                int cols = N;
 
-#pragma omp parallel for default (shared) private(i)
-    for ( i = 0; i < rows; ++i) {
-        #pragma omp parallel for default (shared) private(j)
-        for ( j = 0; j < cols; ++j) {
-            matrix[i][j] =
-                D * (2 * delta(i, j) - delta(i, j + 1) - delta(i, j - 1)) / sqrt(m[i] * m[j]);
-        }
-    }
+                t1 = omp_get_wtime();
 
-    // z init
-    e_vec = initializeMatrix(rows, cols);
+                X      = new double[N];
+                m      = initializeMass(N, m0, n0);
+                matrix = initializeMatrix(rows, cols);
 
-#pragma omp parallel for default (shared) private(i)
-    for ( i = 0; i < rows; ++i) {
-        #pragma omp parallel for default (shared) private(j)
-        for ( j = 0; j < cols; ++j) {
-            e_vec[i][j] = delta(i, j);
-        }
-    }
+#pragma omp parallel for default(shared) private(i)
+                for (i = 0; i < rows; ++i) {
+#pragma omp parallel for default(shared) private(j)
+                    for (j = 0; j < cols; ++j) {
+                        matrix[i][j] = D * (2 * delta(i, j) - delta(i, j + 1) - delta(i, j - 1)) /
+                                       sqrt(m[i] * m[j]);
+                    }
+                }
 
-    // diagonal and subdiagonal init
-    e_val       = new double[N];
-    subdiagonal = new double[N - 1];
+                // z init
+                e_vec = initializeMatrix(rows, cols);
 
-    t2 = omp_get_wtime();
+#pragma omp parallel for default(shared) private(i)
+                for (i = 0; i < rows; ++i) {
+#pragma omp parallel for default(shared) private(j)
+                    for (j = 0; j < cols; ++j) {
+                        e_vec[i][j] = delta(i, j);
+                    }
+                }
 
-    // Pass tred2 algorithm. For evaluation, not necessarily
-    tred2(matrix, N, e_val, subdiagonal);
+                // diagonal and subdiagonal init
+                e_val       = new double[N];
+                subdiagonal = new double[N - 1];
 
-    // printMatrix(e_vec, rows, cols);
+                t2 = omp_get_wtime();
 
-    // Apply tqli algorithm
-    tqli(e_val, subdiagonal, N, e_vec);
-    t3 = omp_get_wtime();
+                // Pass tred2 algorithm. For evaluation, not necessarily
+                tred2(matrix, N, e_val, subdiagonal);
+
+                // printMatrix(e_vec, rows, cols);
+
+                // Apply tqli algorithm
+                tqli(e_val, subdiagonal, N, e_vec);
+                t3 = omp_get_wtime();
 
 #ifdef DEBUG
-    printMatrix(e_vec, rows, cols);
+                printMatrix(e_vec, rows, cols);
 #endif
 
-    for (double t = 0; t < T; t = t + dT) {  // Replace values in equation of X(t)
-        #pragma omp parallel for default(shared) private(i)
-        for (i = 0; i < N; i++) {  // Define X[0]
-            X[i] = 10. * double(i);
-        }
+                for (double t = 0; t < T; t = t + dT) {  // Replace values in equation of X(t)
+#pragma omp parallel for default(shared) private(i)
+                    for (i = 0; i < N; i++) {  // Define X[0]
+                        X[i] = 10. * double(i);
+                    }
 
-        //#pragma omp parallel for default(shared)// private(t)
-        for (i = 0; i < rows; i++) {
-            double res = 0;
-            #pragma omp parallel for default(shared) private(j) reduction (+:res) 
-            for (j = 0; j < cols; j++) {
-                //printf("%d, %d, %f, %d \n", i, j, t, omp_get_thread_num());
-                res += e_vec[i][j] * cos(e_val[j] * t) + e_vec[i][j] * sin(e_val[j] * t);
+                    //#pragma omp parallel for default(shared)// private(t)
+                    for (i = 0; i < rows; i++) {
+                        double res = 0;
+#pragma omp parallel for default(shared) private(j) reduction(+ : res)
+                        for (j = 0; j < cols; j++) {
+                            // printf("%d, %d, %f, %d \n", i, j, t, omp_get_thread_num());
+                            res +=
+                                e_vec[i][j] * cos(e_val[j] * t) + e_vec[i][j] * sin(e_val[j] * t);
+                        }
+                        X[i] += res;
+
+#ifdef EXPORT
+                        fprintf(fout, "%lf,", X[i]);
+#endif
+                    }
+                    // printVector(X, rows);
+#ifdef EXPORT
+                    fprintf(fout, "\n");
+#endif
+                }
+
+#ifdef DEBUG
+                printMatrix(e_vec, rows, cols);
+#endif
+
+                t4 = omp_get_wtime();
+                printf("%9.6f, %9.6f, %9.6f, %9.6f\n", (t2 - t1) * 1000, (t3 - t2) * 1000,
+                       (t4 - t3) * 1000, (t4 - t1) * 1000);
+
+                terminateMatrix(e_vec, N);
+                terminateMatrix(matrix, N);
+                terminateVector(e_val);
+                terminateVector(subdiagonal);
+                terminateVector(m);
+                terminateVector(X);
             }
-            X[i] += res;
-
-#ifdef EXPORT
-            fprintf(fout, "%lf,", X[i]);
-#endif
         }
-        //printVector(X, rows);
-#ifdef EXPORT
-        fprintf(fout, "\n");
-#endif
     }
-
-#ifdef DEBUG
-    printMatrix(e_vec, rows, cols);
-#endif
-
-    t4 = omp_get_wtime();
-    printf("%9.6f, %9.6f, %9.6f, %9.6f\n", (t2 - t1) * 1000, (t3 - t2) * 1000, (t4 - t3) * 1000,
-           (t4 - t1) * 1000);
-
-    terminateMatrix(e_vec, N);
-    terminateMatrix(matrix, N);
-    terminateVector(e_val);
-    terminateVector(subdiagonal);
-    terminateVector(m);
-    terminateVector(X);
     return 0;
 }
 
