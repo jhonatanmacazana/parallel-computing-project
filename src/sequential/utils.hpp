@@ -156,32 +156,18 @@ void tqli(double* d, double* e, int n, double** z) {
     int max_iter     = 100;
     const double EPS = std::numeric_limits<double>::epsilon();
 
-    // #pragma omp parallel for private(i) schedule(dynamic)
     for (i = 1; i < n; i++) {
         e[i - 1] = e[i];
     }
 
     e[n - 1] = 0.0;
 
-    //#pragma omp parallel for default (shared) private(l, iter, d) reduction(-:d[:n])
-    // #pragma omp parallel for private(l)  // reduction(- : d[:n])
     for (l = 0; l < n; l++) {
         iter         = 0;
         flag_inner_3 = true;
-        // do {
-        //#pragma omp parallel for shared(flag_inner_3, inner_3_iter, iter)
-        for (inner_3_iter = 0; inner_3_iter < max_iter; inner_3_iter++)
+        for (inner_3_iter = 0; inner_3_iter < max_iter; inner_3_iter++) {
             if (flag_inner_3) {
                 flag_inner_2 = true;
-                //#pragma omp parallel for default(shared )
-                // for (m = l; m < n - 1; m++) {
-                //     if (flag_inner_2){
-                //         dd = fabs(d[m]) + fabs(d[m + 1]);
-                //         if ((double)(fabs(e[m]) + dd) == dd){
-                //             flag_inner_2 = false;
-                //         }
-                //     }
-                // }
 
                 for (m = l; m < n - 1; m++) {
                     dd = abs(d[m]) + abs(d[m + 1]);
@@ -189,11 +175,6 @@ void tqli(double* d, double* e, int n, double** z) {
                 }
 
                 if (m != l) {
-                    if (iter++ == 30 || inner_3_iter > max_iter) {
-                        // perror("\n\nToo many iterations in tqli.\n");
-                        exit(0);
-                    }
-
                     g = (d[l + 1] - d[l]) / (2.0 * e[l]);
                     r = pythag(g, 1.0);
                     g = d[m] - d[l] + e[l] / (g + SIGN(r, g));
@@ -202,7 +183,6 @@ void tqli(double* d, double* e, int n, double** z) {
 
                     flag_inner_1 = true;
 
-                    // #pragma omp parallel for  // reduction(-:d[:n])
                     for (i = m - 1; i >= l; i--) {
                         if (flag_inner_1) {
                             f        = s * e[i];
@@ -214,7 +194,6 @@ void tqli(double* d, double* e, int n, double** z) {
                                 e[m]         = 0.0;
                                 flag_inner_1 = false;
                             }
-                            //#pragma omp barrier
 
                             if (flag_inner_1) {
                                 s        = f / r;
@@ -223,7 +202,6 @@ void tqli(double* d, double* e, int n, double** z) {
                                 r        = (d[i] - g) * s + 2.0 * c * b;
                                 d[i + 1] = g + (p = s * r);
                                 g        = c * r - b;
-                                // #pragma omp parallel for private(f)
                                 for (k = 0; k < n; k++) {
                                     f           = z[k][i + 1];
                                     z[k][i + 1] = s * z[k][i] + c * f;
@@ -237,11 +215,10 @@ void tqli(double* d, double* e, int n, double** z) {
                         e[l] = g;
                         e[m] = 0.0;
                     }
-
                 } /* end if-loop for m != 1 */
                 if (m != l) flag_inner_3 = false;
             }
-        //} while (m != l);
+        }
     }
 }
 

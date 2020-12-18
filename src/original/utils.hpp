@@ -162,7 +162,7 @@ void tqli(double* d, double* e, int n, double** z) {
             }
             if (m != l) {
                 if (iter++ == 30) {
-                    // perror("\n\nToo many iterations in tqli.\n");
+                    perror("\n\nToo many iterations in tqli.\n");
                     exit(1);
                 }
 
@@ -199,7 +199,6 @@ void tqli(double* d, double* e, int n, double** z) {
                 if (r == 0.0 && i >= l) continue;
                 d[l] -= p;
                 e[l] = g;
-                // printf("%d ", m);
                 e[m] = 0.0;
 
             } /* end if-loop for m != 1 */
