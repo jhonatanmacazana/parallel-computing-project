@@ -13,7 +13,7 @@
 #define INITIAL_MASS    1.
 
 #define TIME_LIMIT 10.
-#define TIME_STEPS 1
+#define TIME_STEPS 0.1
 
 double** initializeMatrix(int rows, int cols);
 double* initializeMass(int size, double initial_m, double initial_n);
@@ -118,7 +118,7 @@ int main(int argc, char** argv) {
             fprintf(fout, "%lf,", X[i]);
 #endif
         }
-        printVector(X, rows);
+        // printVector(X, rows);
 #ifdef EXPORT
         fprintf(fout, "\n");
 #endif
